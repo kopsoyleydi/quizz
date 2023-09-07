@@ -13,16 +13,6 @@ import ru.frank.dataBaseUtil.UserSessionDao;
 public class ApplicationConfiguration {
 
     @Bean
-    public UserSessionDao userSessionDao(){
-        return new UserSessionDaoImpl();
-    }
-
-    @Bean
-    public QuestionAndAnswerDao questionAndAnswerDao(){
-        return new QuestionAndAnswerDaoImpl();
-    }
-
-    @Bean
     public UserSessionHandler userSessionHandler(){
         return new UserSessionHandler();
     }

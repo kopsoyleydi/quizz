@@ -61,7 +61,7 @@ public class UserScoreHandler {
 
         List<UserScore> sortedList = allUserScore.stream()
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
 
         int userScoreListSize = allUserScore.size();
 

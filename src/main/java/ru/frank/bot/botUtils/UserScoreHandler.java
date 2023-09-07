@@ -63,7 +63,7 @@ public class UserScoreHandler {
                 .sorted()
                 .toList();
 
-        int userScoreListSize = allUserScore.size();
+        int userScoreListSize = sortedList.size();
 
         List<UserScore> topScoreList;
 

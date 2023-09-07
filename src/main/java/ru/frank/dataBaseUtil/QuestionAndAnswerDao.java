@@ -9,7 +9,6 @@ import ru.frank.model.QuestionAndAnswer;
 @Repository
 @Transactional
 public interface QuestionAndAnswerDao extends JpaRepository<QuestionAndAnswer, Long> {
-
     QuestionAndAnswer getQuestionById(Long id );
 
 }

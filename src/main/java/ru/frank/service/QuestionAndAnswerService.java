@@ -1,6 +1,7 @@
 package ru.frank.service;
 
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.frank.dataBaseUtil.QuestionAndAnswerDao;
 import ru.frank.model.QuestionAndAnswer;
@@ -8,10 +9,10 @@ import ru.frank.model.QuestionAndAnswer;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class QuestionAndAnswerService {
 
-    private final QuestionAndAnswerDao questionAndAnswerDao;
+    @Autowired
+    private QuestionAndAnswerDao questionAndAnswerDao;
 
     public Long getMaximumId() {
         List<QuestionAndAnswer> questionAndAnswersList = questionAndAnswerDao.findAll();

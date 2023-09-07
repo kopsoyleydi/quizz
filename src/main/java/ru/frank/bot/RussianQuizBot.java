@@ -109,7 +109,10 @@ public class RussianQuizBot extends TelegramLongPollingBot{
 
             if(userMessageText.contains("/top10")){
                 List<UserScore> topUsersScoreList = userScoreHandler.getTopFiveUserScore();
-                String topUsersScoreString = topUsersScoreList.stream().map(UserScore::getUserName).collect(Collectors.joining());
+                String topUsersScoreString = topUsersScoreList.stream()
+                        .map(UserScore::getUserName)
+                        .collect(Collectors.joining(System.lineSeparator()));
+                executeSendTextMessage(chatId, topUsersScoreString);
                 executeSendTextMessage(chatId, topUsersScoreString);
 
 //

@@ -31,7 +31,7 @@ public class UserSessionHandler {
         String question = questionAndAnswerArray[0];
         String answer = questionAndAnswerArray[1];
         LocalDateTime dateTime = LocalDateTime.now();
-        userSessionDao.save(new UserSession(userId, dateTime.format(formatter), question, answer));
+        userSessionDao.save(new UserSession(userId,dateTime.format(formatter),question, answer));
     }
 
     public String getQuestionAndAnswerFromDB(long userId){

@@ -12,6 +12,7 @@ public interface UserScoreDao {
 
     List<UserScore> getAll();
 
+
     long save(UserScore userScore);
 
     void update(UserScore userScore);

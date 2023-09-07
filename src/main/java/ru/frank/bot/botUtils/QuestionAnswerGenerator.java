@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.frank.dataBaseUtil.QuestionAndAnswerDao;
 import ru.frank.model.QuestionAndAnswer;
+import ru.frank.service.QuestionAndAnswerService;
 
 /**
  * Класс для получения объекта класса
@@ -18,12 +19,15 @@ public class QuestionAnswerGenerator {
     @Autowired
     private QuestionAndAnswerDao questionAndAnswerDao;
 
+    @Autowired
+    private QuestionAndAnswerService questionAndAnswerService;
+
     /**
      * Генерирует случайное число от 1 до Maximum ID из БД
      * @return (long) [1 ; max ID]
      */
     private long getRandomNumber(){
-        return (long) (Math.random() * questionAndAnswerDao.getMaximumId() + 1);
+        return (long) (Math.random() * questionAndAnswerService.getMaximumId() + 1);
     }
 
     /**
@@ -34,9 +38,8 @@ public class QuestionAnswerGenerator {
         QuestionAndAnswer questionAndAnswer = null;
 
         while(questionAndAnswer == null){
-            questionAndAnswer = questionAndAnswerDao.get(getRandomNumber());
+            questionAndAnswer = questionAndAnswerDao.getQuestionById(getRandomNumber());
         }
-
         return questionAndAnswer;
     }
 

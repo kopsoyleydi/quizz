@@ -1,7 +1,6 @@
 import org.junit.Assert;
 import org.junit.Test;
 import ru.frank.dataBaseUtil.QuestionAndAnswerDao;
-import ru.frank.dataBaseUtil.QuestionAndAnswerDaoImpl;
 import ru.frank.model.QuestionAndAnswer;
 
 /**

@@ -4,14 +4,20 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 @Entity
 @Table(name = "user_score")
-public class UserScore implements Serializable, Comparable<UserScore>{
-
-    private static final long serialVersionUID = 8933332456626130380L;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserScore {
 
     @Id
     @Column(name = "id")
@@ -23,42 +29,6 @@ public class UserScore implements Serializable, Comparable<UserScore>{
     @Column(name = "score")
     private long score;
 
-    public UserScore(long id, String userName, long score) {
-        this.id = id;
-        this.userName = userName;
-        this.score = score;
-    }
-
-    public UserScore() {}
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getScore() {
-        return score;
-    }
-
-    public void setScore(long score) {
-        this.score = score;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    @Override
-    public int compareTo(UserScore userScore) {
-        return (int) (this.score - userScore.getScore());
-    }
 
     @Override
     public String toString() {

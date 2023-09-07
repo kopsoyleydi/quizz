@@ -17,7 +17,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import ru.frank.Application;
 import ru.frank.bot.botUtils.UserScoreHandler;
 import ru.frank.dataBaseUtil.userScore.UserScoreDao;
-import ru.frank.dataBaseUtil.userScore.UserScoreDaoImpl;
 import ru.frank.model.UserScore;
 
 import java.util.List;

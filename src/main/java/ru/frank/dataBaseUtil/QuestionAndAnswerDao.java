@@ -1,20 +1,15 @@
 package ru.frank.dataBaseUtil;
 
-import org.springframework.stereotype.Component;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import ru.frank.model.QuestionAndAnswer;
 
-import java.util.List;
 
-@Component
-public interface QuestionAndAnswerDao {
+@Repository
+@Transactional
+public interface QuestionAndAnswerDao extends JpaRepository<QuestionAndAnswer, Long> {
 
-    QuestionAndAnswer get(long id);
-
-    List<QuestionAndAnswer> getAll();
-
-    long getRowCount();
-
-    long getMaximumId();
-
+    QuestionAndAnswer getQuestionById(Long id );
 
 }

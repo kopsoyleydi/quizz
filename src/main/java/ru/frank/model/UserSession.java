@@ -4,15 +4,20 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-
-import java.io.Serializable;
 
 @Entity
 @Table(name = "sessions")
-public class UserSession implements Serializable {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserSession {
 
-    private static final long serialVersionUID = -5830776215730521393L;
 
     @Id
     @Column(name = "id")
@@ -27,46 +32,6 @@ public class UserSession implements Serializable {
     @Column(name = "answer")
     private String answer;
 
-    public UserSession(Long id, String startTime, String question, String answer) {
-        this.id = id;
-        this.startTime = startTime;
-        this.question = question;
-        this.answer = answer;
-    }
-
-    public UserSession() {}
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
-    public String getAnswer() {
-        return answer;
-    }
-
-    public void setAnswer(String answer) {
-        this.answer = answer;
-    }
 
     @Override
     public String toString() {

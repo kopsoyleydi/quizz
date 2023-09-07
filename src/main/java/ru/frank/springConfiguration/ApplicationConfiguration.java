@@ -7,9 +7,7 @@ import ru.frank.bot.botUtils.QuestionAnswerGenerator;
 import ru.frank.bot.botUtils.UserScoreHandler;
 import ru.frank.bot.botUtils.UserSessionHandler;
 import ru.frank.dataBaseUtil.QuestionAndAnswerDao;
-import ru.frank.dataBaseUtil.QuestionAndAnswerDaoImpl;
 import ru.frank.dataBaseUtil.UserSessionDao;
-import ru.frank.dataBaseUtil.UserSessionDaoImpl;
 
 @Configuration
 public class ApplicationConfiguration {

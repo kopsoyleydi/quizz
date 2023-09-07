@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="hibernate.cfg.xml/Hibernate" uuid="e4bfcf1b-386b-40c7-9ed9-0fe29f45d7c8">
-      <driver-ref>sqlite.xerial</driver-ref>
+    <data-source source="LOCAL" name="quizz@localhost" uuid="d7a92d32-3011-4fe7-8549-2d1fd9c2dec0">
+      <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <imported>true</imported>
-      <remarks>$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml</remarks>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/src/main/resources/sqLite/RussianQuiz.db</jdbc-url>
-    </data-source>
-    <data-source source="LOCAL" name="RussianQuiz" uuid="df5d0c48-0534-4eb7-be4a-7f4d0e2f52a4">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\omyrz\IdeaProjects\Telegram-QuizBot-master\src\main\resources\sqLite\RussianQuiz.db</jdbc-url>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/quizz</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

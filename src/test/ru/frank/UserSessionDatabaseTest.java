@@ -5,7 +5,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import ru.frank.dataBaseUtil.HibernateSessionFactory;
 import ru.frank.dataBaseUtil.UserSessionDao;
-import ru.frank.dataBaseUtil.UserSessionDaoImpl;
 import ru.frank.model.UserSession;
 
 import javax.persistence.criteria.CriteriaBuilder;

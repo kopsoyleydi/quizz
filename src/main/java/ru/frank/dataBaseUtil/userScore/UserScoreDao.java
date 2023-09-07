@@ -1,19 +1,17 @@
 package ru.frank.dataBaseUtil.userScore;
 
+import jakarta.transaction.Transactional;
+import org.apache.catalina.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.frank.model.UserScore;
 
 import java.util.List;
 
-@Component
-public interface UserScoreDao {
+@Repository
+@Transactional
+public interface UserScoreDao extends JpaRepository<UserScore, Long> {
+    UserScore getAllById(Long id);
 
-    UserScore get(long id);
-
-    List<UserScore> getAll();
-
-
-    long save(UserScore userScore);
-
-    void update(UserScore userScore);
 }

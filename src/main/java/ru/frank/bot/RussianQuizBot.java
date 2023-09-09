@@ -111,10 +111,7 @@ public class RussianQuizBot extends TelegramLongPollingBot{
 //                            "вероятно вы еще не играли в викторину. " +
 //                            "Для начала пришлите /go.");
                 }
-
-
             }
-
             if(userMessageText.contains("/top10")){
                 List<UserScore> topUsersScoreList = userScoreHandler.getTopFiveUserScore();
                 String topUsersScoreString = topUsersScoreList.stream()
@@ -122,16 +119,13 @@ public class RussianQuizBot extends TelegramLongPollingBot{
                         .collect(Collectors.joining(System.lineSeparator()));
                 executeSendTextMessage(chatId, topUsersScoreString);
                 executeSendTextMessage(chatId, topUsersScoreString);
-
 //
 //                try {
 //                    execute(sendMessage.setText(topUsersScoreString));
 //                } catch (TelegramApiException e) {
 //                    e.printStackTrace();
 //                }
-
             }
-
             // Начало новой викторины.
             if(userMessageText.contains("/go")){
 
@@ -149,7 +143,6 @@ public class RussianQuizBot extends TelegramLongPollingBot{
                 if(!userScoreHandler.userAlreadyInChart(userId)){
                     userScoreHandler.addNewUserInChart(userId, userName);
                 }
-
                 executeSendTextMessage(chatId, question);
                 ////sendMessage(message, question);
             // Отвечаем пользователю, если сообщение не содержит явных указаний для бота (default bot's answer)
@@ -170,7 +163,6 @@ public class RussianQuizBot extends TelegramLongPollingBot{
                 if(rightAnswer.contains(userMessageText)){
                     executeSendTextMessage(chatId, "Поздравляю! Ответ правильный! Для начала новой викторины напишите /go.");
 //                    sendMessage(message, "Поздравляю! Ответ правильный! Для начала новой викторины напишите /go.");
-
                     // Увеличиваем счет пользователя на 1.
                     userScoreHandler.incrementUserScore(userId);
                     // Удаляем текущую сессию пользователя.

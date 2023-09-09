@@ -1,5 +1,6 @@
 package ru.frank.bot.botUtils;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.frank.dataBaseUtil.userScore.UserScoreDao;
@@ -14,6 +15,7 @@ import java.util.List;
  * счета пользователя в таблице базы данных.
  */
 @Component
+@Transactional
 public class UserScoreHandler {
 
     @Autowired

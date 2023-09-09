@@ -22,8 +22,6 @@ public class UserScore {
     @Column(name = "score")
     private long score;
 
-
-
     @Override
     public String toString() {
         return "UserScore{" +

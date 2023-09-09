@@ -1,7 +1,6 @@
 package ru.frank.bot.botUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.frank.dataBaseUtil.UserSessionDao;
 import ru.frank.model.UserSession;
@@ -20,11 +19,7 @@ public class UserSessionHandler {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd HH:mm:ss");
 
     public boolean sessionIsActive(Long userId){
-        if(userSessionDao.getUserById(userId) == null){
-            return false;
-        } else{
-            return true;
-        }
+        return userSessionDao.getUserById(userId) != null;
     }
 
     public void createUserSession(Long userId, String questionAndAnswer){

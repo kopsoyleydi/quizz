@@ -37,7 +37,6 @@ public class QuestionAnswerGenerator {
      */
     private QuestionAndAnswer getRandomQuestionAndAnswer(){
         QuestionAndAnswer questionAndAnswer = null;
-
         while(questionAndAnswer == null){
             questionAndAnswer = questionAndAnswerDao.getQuestionById(getRandomNumber());
         }

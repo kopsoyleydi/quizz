@@ -26,7 +26,7 @@ public class UserSessionHandler {
         String [] questionAndAnswerArray = questionAndAnswer.split("\\|");
         String question = questionAndAnswerArray[0];
         String answer = questionAndAnswerArray[1];
-        LocalDateTime dateTime = LocalDateTime.now().plusSeconds(50L);
+        LocalDateTime dateTime = LocalDateTime.now();
         userSessionDao.save(new UserSession(userId,dateTime.format(formatter),question, answer));
     }
 
@@ -61,7 +61,7 @@ public class UserSessionHandler {
      */
     public boolean validateDate(LocalDateTime currentDate, long userId) {
         LocalDateTime dateTimeFromSession = LocalDateTime.parse(getDateFromSession(userId), formatter);
-        return currentDate.isBefore(dateTimeFromSession.plusSeconds(20));
+        return currentDate.isBefore(dateTimeFromSession.plusSeconds(50));
     }
 
 

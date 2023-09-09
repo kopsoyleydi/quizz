@@ -100,15 +100,10 @@ public class RussianQuizBot extends TelegramLongPollingBot{
                 // Проверяем наличие текущего пользователя в таблице БД "score",
                 if(userScoreHandler.userAlreadyInChart(userId)){
                     executeSendTextMessage(chatId, "Ваш счет: " + String.valueOf(userScoreHandler.getUserScoreById(userId)));
-//                    // При наличии текущего пользователя в таблице - отправляем счет игры.
-//                    sendMessage(message, "Ваш счет: " + String.valueOf(userScoreHandler.getUserScoreById(userId)));
                 } else{
                     executeSendTextMessage(chatId, "Запись во вашему счету отсутствует, " +
                             "вероятно вы еще не играли в викторину. " +
                             "Для начала пришлите /go.");
-//                    sendMessage(message, "Запись во вашему счету отсутствует, " +
-//                            "вероятно вы еще не играли в викторину. " +
-//                            "Для начала пришлите /go.");
                 }
             }
             if(userMessageText.contains("/top10")){
@@ -118,12 +113,6 @@ public class RussianQuizBot extends TelegramLongPollingBot{
                         .collect(Collectors.joining(System.lineSeparator()));
                 executeSendTextMessage(chatId, topUsersScoreString);
                 executeSendTextMessage(chatId, topUsersScoreString);
-//
-//                try {
-//                    execute(sendMessage.setText(topUsersScoreString));
-//                } catch (TelegramApiException e) {
-//                    e.printStackTrace();
-//                }
             }
             // Начало новой викторины.
             if(userMessageText.contains("/go")){
@@ -161,8 +150,6 @@ public class RussianQuizBot extends TelegramLongPollingBot{
             if(userSessionHandler.validateDate(currentDate, userId)){
                 if(rightAnswer.contains(userMessageText)){
                     executeSendTextMessage(chatId, "Поздравляю! Ответ правильный! Для начала новой викторины напишите /go.");
-//                    sendMessage(message, "Поздравляю! Ответ правильный! Для начала новой викторины напишите /go.");
-                    // Увеличиваем счет пользователя на 1.
                     userScoreHandler.incrementUserScore(userId);
                     // Удаляем текущую сессию пользователя.
                     userSessionHandler.deleteUserSession(userId);
@@ -225,18 +212,6 @@ public class RussianQuizBot extends TelegramLongPollingBot{
 
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
-        /*listofCommands.add(new BotCommand("/score", "Мой счет"));
-        listofCommands.add(new BotCommand("/top10", "Топ 10"));
-        listofCommands.add(new BotCommand("/help", "Помощь"));*/
-        /*firstRow.add(new InlineKeyboardButton().setText("Начать игру").setCallbackData("/go"));
-        secondRow.add(new InlineKeyboardButton().setText("Мой счет").setCallbackData("/score"));
-        thirdRow.add(new InlineKeyboardButton().setText("Топ 10").setCallbackData("/top10"));
-        fourthRow.add(new InlineKeyboardButton().setText("Помощь").setCallbackData("/help"));*/
-        /*try {
-            this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
-        } catch (TelegramApiException e) {
-            log.error("Error setting bot is command list: " + e.getMessage());
-        }*/
     }
 
     /**

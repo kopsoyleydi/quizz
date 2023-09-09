@@ -2,6 +2,7 @@ package ru.frank.bot.botUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.frank.dataBaseUtil.QuestionAndAnswerDao;
 import ru.frank.model.QuestionAndAnswer;
 import ru.frank.service.QuestionAndAnswerService;
@@ -13,7 +14,7 @@ import ru.frank.service.QuestionAndAnswerService;
  * по случайному id в пределах от 1 до максимального ID в БД.
  */
 
-@Component
+@Service
 public class QuestionAnswerGenerator {
 
     @Autowired

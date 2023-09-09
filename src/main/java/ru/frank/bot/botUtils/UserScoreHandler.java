@@ -8,7 +8,6 @@ import ru.frank.model.UserScore;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Класс для обработки событий связанных с чтением, изменением, дополнением

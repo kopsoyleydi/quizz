@@ -1,14 +1,18 @@
 package ru.frank.bot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.frank.bot.botUtils.QuestionAnswerGenerator;
 import ru.frank.bot.botUtils.UserScoreHandler;
 import ru.frank.bot.botUtils.UserSessionHandler;
@@ -21,8 +25,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class RussianQuizBot extends TelegramLongPollingBot{
-    private final String BOT_USER_NAME = "RussianQuizBot";
-    private final String TOKEN = "480188136:AAFXnydeEfJXPt0sJnB1hjyBh-4Wpr9wrPk";
+    private final String BOT_USER_NAME = "QuizzBeksBot";
+    private final String TOKEN = "6574685806:AAE5S_6snNhj0vUq818y660YyfbypzEnHU8";
+
+    private final Logger log = LoggerFactory.getLogger(Object.class);
+
+    static final String ERROR_TEXT = "Error occurred:  ";
 
     @Autowired
     QuestionAnswerGenerator questionAnswerGenerator;
@@ -56,7 +64,7 @@ public class RussianQuizBot extends TelegramLongPollingBot{
                 return;
             }
             message = update.getMessage();
-            userId = message.getFrom().getId().longValue();
+            userId = message.getFrom().getId();
             userName = message.getFrom().getUserName();
             chatId = message.getChatId();
             userMessageText = message.getText().toLowerCase();
@@ -74,7 +82,7 @@ public class RussianQuizBot extends TelegramLongPollingBot{
             message = update.getCallbackQuery().getMessage();
             userMessageText = update.getCallbackQuery().getData();
             chatId = message.getChatId();
-            userId = update.getCallbackQuery().getFrom().getId().longValue();
+            userId = update.getCallbackQuery().getFrom().getId();
         }
 
         // Сессия с написавшем пользователем не активна (нет заданного вопроса викторины).
@@ -209,47 +217,61 @@ public class RussianQuizBot extends TelegramLongPollingBot{
 
     /**
      * Method builds main bot menu buttons that contains basic bot commands.
+     *
      * @return InlineKeyboardMarkup object with build menu.
      */
-    private InlineKeyboardMarkup getMainBotMarkup(){
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInLine = new ArrayList<>();
-        List<InlineKeyboardButton> firstRow = new ArrayList<>();
-        List<InlineKeyboardButton> secondRow = new ArrayList<>();
-        List<InlineKeyboardButton> thirdRow = new ArrayList<>();
-        List<InlineKeyboardButton> fourthRow = new ArrayList<>();
-        firstRow.add(new InlineKeyboardButton().setText("Начать игру").setCallbackData("/go"));
+    private ReplyKeyboard getMainBotMarkup(){
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
+        keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
+
+// Теперь вы можете добавлять строки и кнопки в список keyboard
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add(new KeyboardButton("/go"));
+        row1.add(new KeyboardButton("/score"));
+        row1.add(new KeyboardButton("/top10"));
+        row1.add(new KeyboardButton("/help"));
+
+// Добавьте строку в список keyboard
+        keyboard.add(row1);
+
+// Теперь установите клавиатуру с помощью setReplyMarkup
+        keyboardMarkup.setKeyboard(keyboard);
+        return keyboardMarkup;
+        /*listofCommands.add(new BotCommand("/score", "Мой счет"));
+        listofCommands.add(new BotCommand("/top10", "Топ 10"));
+        listofCommands.add(new BotCommand("/help", "Помощь"));*/
+        /*firstRow.add(new InlineKeyboardButton().setText("Начать игру").setCallbackData("/go"));
         secondRow.add(new InlineKeyboardButton().setText("Мой счет").setCallbackData("/score"));
         thirdRow.add(new InlineKeyboardButton().setText("Топ 10").setCallbackData("/top10"));
-        fourthRow.add(new InlineKeyboardButton().setText("Помощь").setCallbackData("/help"));
-        rowsInLine.add(firstRow);
-        rowsInLine.add(secondRow);
-        rowsInLine.add(thirdRow);
-        rowsInLine.add(fourthRow);
-        markupInline.setKeyboard(rowsInLine);
-        return markupInline;
+        fourthRow.add(new InlineKeyboardButton().setText("Помощь").setCallbackData("/help"));*/
+        /*try {
+            this.execute(new SetMyCommands(listofCommands, new BotCommandScopeDefault(), null));
+        } catch (TelegramApiException e) {
+            log.error("Error setting bot is command list: " + e.getMessage());
+        }*/
     }
 
     /**
      *
      * Send text constructed by Bot to user who's asking.
      *
-     * @param message
-     * @param text
+     * @param
+     * @param
      */
     @Deprecated
-    private void sendMessage(Message message, String text){
-        // Temporary verification
-        // TODO Replace verification to finding method
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.enableMarkdown(true);
-        sendMessage.setChatId(message.getChatId().toString());
-        sendMessage.setReplyToMessageId(message.getMessageId());
-        sendMessage.setText(text);
-        try{
-            sendMessage(sendMessage);
-        } catch (TelegramApiException ex){
-            ex.printStackTrace();
+    private void sendMessage(long chatId, String textToSend) {
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        executeMessage(message);
+    }
+
+    private void executeMessage(SendMessage message){
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error(ERROR_TEXT + e.getMessage());
         }
     }
 

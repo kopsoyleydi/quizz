@@ -2,6 +2,7 @@ package ru.frank.bot.botUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.frank.dataBaseUtil.UserSessionDao;
 import ru.frank.model.UserSession;
 
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-@Component
+@Service
 public class UserSessionHandler {
 
     @Autowired

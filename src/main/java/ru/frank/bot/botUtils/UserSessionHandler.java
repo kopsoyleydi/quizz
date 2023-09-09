@@ -26,7 +26,7 @@ public class UserSessionHandler {
         String [] questionAndAnswerArray = questionAndAnswer.split("\\|");
         String question = questionAndAnswerArray[0];
         String answer = questionAndAnswerArray[1];
-        LocalDateTime dateTime = LocalDateTime.now();
+        LocalDateTime dateTime = LocalDateTime.now().plusSeconds(50L);
         userSessionDao.save(new UserSession(userId,dateTime.format(formatter),question, answer));
     }
 

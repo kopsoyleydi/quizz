@@ -11,7 +11,6 @@ import lombok.Setter;
 public class UserScore {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

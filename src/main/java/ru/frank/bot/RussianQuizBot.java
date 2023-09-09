@@ -74,7 +74,6 @@ public class RussianQuizBot extends TelegramLongPollingBot{
             if(!userSessionHandler.sessionIsActive(userId)){
                 executeSendMainMenu(chatId);
             }
-
         }
 
         // Get pressed button from user.
@@ -216,18 +215,14 @@ public class RussianQuizBot extends TelegramLongPollingBot{
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
         keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
-
-// Теперь вы можете добавлять строки и кнопки в список keyboard
         KeyboardRow row1 = new KeyboardRow();
         row1.add(new KeyboardButton("/go"));
         row1.add(new KeyboardButton("/score"));
         row1.add(new KeyboardButton("/top10"));
         row1.add(new KeyboardButton("/help"));
 
-// Добавьте строку в список keyboard
         keyboard.add(row1);
 
-// Теперь установите клавиатуру с помощью setReplyMarkup
         keyboardMarkup.setKeyboard(keyboard);
         return keyboardMarkup;
         /*listofCommands.add(new BotCommand("/score", "Мой счет"));

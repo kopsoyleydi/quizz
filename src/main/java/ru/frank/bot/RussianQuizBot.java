@@ -4,6 +4,7 @@ package ru.frank.bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -27,12 +28,15 @@ import java.util.stream.Collectors;
 
 @Component
 public class RussianQuizBot extends TelegramLongPollingBot {
-	private final String BOT_USER_NAME = "QuizzBeksBot";
-	private final String TOKEN = "6574685806:AAE5S_6snNhj0vUq818y660YyfbypzEnHU8";
 
 	private final Logger log = LoggerFactory.getLogger(Object.class);
 
 	static final String ERROR_TEXT = "Error occurred:  ";
+
+	@Value("${bot.name}")
+	String botName;
+	@Value("${bot.token}")
+	String token;
 
 	@Autowired
 	QuestionAnswerGenerator questionAnswerGenerator;
@@ -255,11 +259,11 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	@Override
 	public String getBotUsername() {
-		return this.BOT_USER_NAME;
+		return botName;
 	}
 
 	@Override
 	public String getBotToken() {
-		return this.TOKEN;
+		return token;
 	}
 }

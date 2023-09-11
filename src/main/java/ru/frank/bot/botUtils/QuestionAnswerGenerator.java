@@ -1,7 +1,6 @@
 package ru.frank.bot.botUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.frank.dataBaseUtil.QuestionAndAnswerDao;
 import ru.frank.model.QuestionAndAnswer;

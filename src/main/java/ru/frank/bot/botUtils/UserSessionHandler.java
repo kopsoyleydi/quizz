@@ -61,7 +61,7 @@ public class UserSessionHandler {
      */
     public boolean validateDate(LocalDateTime currentDate, long userId) {
         LocalDateTime dateTimeFromSession = LocalDateTime.parse(getDateFromSession(userId), formatter);
-        return currentDate.isBefore(dateTimeFromSession.plusSeconds(50));
+        return currentDate.isBefore(dateTimeFromSession.plusSeconds(70));
     }
 
 

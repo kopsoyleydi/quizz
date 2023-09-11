@@ -39,9 +39,9 @@ public class UserScoreHandler {
         userScoreDao.save(userScore);
     }
 
-    public void incrementUserScore(long userId){
+    public void incrementUserScore(long userId, int score){
         UserScore userScore = userScoreDao.getAllById(userId);
-        userScore.setScore(userScore.getScore() + 1);
+        userScore.setScore(userScore.getScore() + score);
         userScoreDao.save(userScore);
     }
 

@@ -159,7 +159,7 @@ public class RussianQuizBot extends TelegramLongPollingBot{
                     userSessionHandler.deleteUserSession(userId);
                 }
 
-                // Сообщение по истчению 20 секунд, отведенных на сессию пользователя.
+                // Сообщение по истчению 50 секунд, отведенных на сессию пользователя.
                 // При этом удаляется запись в БД.
             } else{
                 executeSendTextMessage(chatId, "Время на ответ вышло.");

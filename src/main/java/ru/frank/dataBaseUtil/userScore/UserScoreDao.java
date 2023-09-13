@@ -6,10 +6,9 @@ import org.springframework.stereotype.Repository;
 import ru.frank.model.UserScore;
 
 
-
 @Repository
 @Transactional
 public interface UserScoreDao extends JpaRepository<UserScore, Long> {
-    UserScore getAllById(Long id);
+	UserScore getAllById(Long id);
 
 }

@@ -11,11 +11,11 @@ import java.util.List;
 @Service
 public class QuestionAndAnswerService {
 
-    @Autowired
-    private QuestionAndAnswerDao questionAndAnswerDao;
+	@Autowired
+	private QuestionAndAnswerDao questionAndAnswerDao;
 
-    public Long getMaximumId() {
-        List<QuestionAndAnswer> questionAndAnswersList = questionAndAnswerDao.findAll();
-        return questionAndAnswersList.get(questionAndAnswersList.size() - 1).getId();
-    }
+	public Long getMaximumId() {
+		List<QuestionAndAnswer> questionAndAnswersList = questionAndAnswerDao.findAll();
+		return questionAndAnswersList.get(questionAndAnswersList.size() - 1).getId();
+	}
 }

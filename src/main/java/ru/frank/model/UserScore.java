@@ -2,8 +2,6 @@ package ru.frank.model;
 
 import jakarta.persistence.*;
 
-import lombok.Getter;
-
 @Entity
 @Table(name = "user_score")
 public class UserScore {
@@ -12,21 +10,14 @@ public class UserScore {
     @Column(name = "id")
     private Long id;
 
-    @Getter
+
     @Column
     private String userName;
 
     @Column(name = "score")
     private long score;
 
-    @Override
-    public String toString() {
-        return "UserScore{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", score=" + score +
-                '}';
-    }
+
 
     public UserScore() {
     }
@@ -58,5 +49,14 @@ public class UserScore {
 
     public void setScore(long score) {
         this.score = score;
+    }
+
+    @Override
+    public String toString() {
+        return "UserScore{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", score=" + score +
+                '}';
     }
 }

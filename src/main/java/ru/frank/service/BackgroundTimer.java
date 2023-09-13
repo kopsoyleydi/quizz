@@ -28,7 +28,7 @@ public class BackgroundTimer {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (elapsedTime >= 60000) { // Остановить после 60 секунд
+			if (elapsedTime >= 120000) { // Остановить после 120 секунд
 				isRunning = false;
 			}
 		}

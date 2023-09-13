@@ -18,64 +18,67 @@ import java.util.List;
 @Transactional
 public class UserScoreHandler {
 
-    @Autowired
-    private UserScoreDao userScoreDao;
+	@Autowired
+	private UserScoreDao userScoreDao;
 
-    /**
-     * Метод проверяет наличие пользователя в таблице базы данных "user_score";
-     * @param userId
-     * @return true - если пользователь уже есть в таблице, false - если нет.
-     */
-    public boolean userAlreadyInChart(long userId){
-        return userScoreDao.getAllById(userId) != null;
-    }
+	/**
+	 * Метод проверяет наличие пользователя в таблице базы данных "user_score";
+	 *
+	 * @param userId
+	 * @return true - если пользователь уже есть в таблице, false - если нет.
+	 */
+	public boolean userAlreadyInChart(long userId) {
+		return userScoreDao.getAllById(userId) != null;
+	}
 
-    /**
-     * Метод добавляет новую запись в таблицу
-     * @param userId
-     */
-    public void addNewUserInChart(long userId, String userName){
-        UserScore userScore = new UserScore(userId, userName, 0);
-        userScoreDao.save(userScore);
-    }
+	/**
+	 * Метод добавляет новую запись в таблицу
+	 *
+	 * @param userId
+	 */
+	public void addNewUserInChart(long userId, String userName) {
+		UserScore userScore = new UserScore(userId, userName, 0);
+		userScoreDao.save(userScore);
+	}
 
-    public void incrementUserScore(long userId, int score){
-        UserScore userScore = userScoreDao.getAllById(userId);
-        userScore.setScore(userScore.getScore() + score);
-        userScoreDao.save(userScore);
-    }
+	public void incrementUserScore(long userId, int score) {
+		UserScore userScore = userScoreDao.getAllById(userId);
+		userScore.setScore(userScore.getScore() + score);
+		userScoreDao.save(userScore);
+	}
 
-    public long getUserScoreById(long userId){
-        return userScoreDao.getAllById(userId).getScore();
-    }
-    
-    /**
-     * ArrayList include top 5 or less UserSco
-     * @return
-     */
-    public List<UserScore> getTopFiveUserScore() {
-        List<UserScore> allUserScore = userScoreDao.findAll();
+	public long getUserScoreById(long userId) {
+		return userScoreDao.getAllById(userId).getScore();
+	}
 
-        if(allUserScore.isEmpty()){
-            throw new UserScoreListIsEmptyException("User score list is empty.");
-        }
+	/**
+	 * ArrayList include top 5 or less UserSco
+	 *
+	 * @return
+	 */
+	public List<UserScore> getTopFiveUserScore() {
+		List<UserScore> allUserScore = userScoreDao.findAll();
 
-        List<UserScore> sortedList = allUserScore.stream()
-                .sorted()
-                .toList();
+		if (allUserScore.isEmpty()) {
+			throw new UserScoreListIsEmptyException("User score list is empty.");
+		}
 
-        int userScoreListSize = sortedList.size();
+		List<UserScore> sortedList = allUserScore.stream()
+				.sorted()
+				.toList();
 
-        List<UserScore> topScoreList;
+		int userScoreListSize = sortedList.size();
 
-        if(userScoreListSize < 5){
-            topScoreList = new ArrayList<>(allUserScore.subList(0, userScoreListSize));
-        } else{
-            topScoreList = new ArrayList<>(allUserScore.subList(0, 5));
-        }
+		List<UserScore> topScoreList;
 
-        return topScoreList;
+		if (userScoreListSize < 5) {
+			topScoreList = new ArrayList<>(allUserScore.subList(0, userScoreListSize));
+		} else {
+			topScoreList = new ArrayList<>(allUserScore.subList(0, 5));
+		}
 
-    }
+		return topScoreList;
+
+	}
 
 }

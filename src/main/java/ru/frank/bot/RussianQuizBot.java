@@ -33,6 +33,10 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	static final String ERROR_TEXT = "Error occurred:  ";
 
+	private static int amountIter;
+
+	private static String rightAnswer;
+
 	@Value("${bot.name}")
 	String botName;
 	@Value("${bot.token}")
@@ -52,6 +56,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	// TODO Сделать красиво (это уродливо), рефакторнуть на разные методы.
 	// TODO Меньше вложенных if if if.
+
 	@Override
 	public void onUpdateReceived(Update update) {
 
@@ -79,12 +84,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			userMessageText = message.getText().toLowerCase();
 //            // TODO Заменить на отдельный метод
 //            sendMessage.setChatId(chatId);
-
-			if (!userSessionHandler.sessionIsActive(userId)) {
-				executeSendMainMenu(chatId);
-			}
 		}
-
 		// Get pressed button from user.
 		if (update.hasCallbackQuery()) {
 			message = update.getCallbackQuery().getMessage();
@@ -127,59 +127,87 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			// Начало новой викторины.
 			if (userMessageText.contains("/go")) {
 
-				// Получаем новый вопрос + ответ из генератора в виде одной строки.
-				String questionAndAnswer = questionAnswerGenerator.getNewQuestionAndAnswerForUser();
-
-				String[] questionAndAnswerArray = questionAndAnswer.split("\\|");
-				String question = questionAndAnswerArray[0];
-
-				// Создаем сессию с текущим пользователем
-				userSessionHandler.createUserSession(chatId, questionAndAnswer);
-
 				// Проверяем наличие текущего пользователя в таблице БД "score",
 				// при отсутствии - добавляем пользователя в таблицу со счетом 0.
 				if (!userScoreHandler.userAlreadyInChart(userId)) {
 					userScoreHandler.addNewUserInChart(userId, userName);
 				}
 
-				executeSendTextMessage(chatId, question);
+				userSessionHandler.createUserSession(chatId);
+
+				executeSelectMenu(chatId);
 
 				backgroundTimer.start();
 
-
 				//I don't think you need to do anything for your particular problem
-
 				////sendMessage(message, question);
 				// Отвечаем пользователю, если сообщение не содержит явных указаний для бота (default bot's answer)
 			}
-			if (userSessionHandler.sessionIsActive(chatId) && userMessageText != null) {
+			else if (userMessageText != null) {
+				executeSendTextMessage(chatId, "Для продолжения команда /start");
 
-				LocalDateTime currentDate = LocalDateTime.now();
-
-				if (userSessionHandler.validateDate(currentDate, chatId)) {
-
-					String rightAnswer = userSessionHandler.getAnswerFromSession(chatId);
-
-					if (rightAnswer.contains(userMessageText)) {
-						if (backgroundTimer.getCurrentSeconds() >= 0 && backgroundTimer.getCurrentSeconds() < 15) {
-							userScoreHandler.incrementUserScore(userId, 3);
-							executeSendTextMessage(chatId, userName + "3");
-							backgroundTimer.stop();
-							userSessionHandler.deleteUserSession(chatId);
-						}
-						if (backgroundTimer.getCurrentSeconds() >= 15 && backgroundTimer.getCurrentSeconds() < 45) {
-							userScoreHandler.incrementUserScore(userId, 2);
-							executeSendTextMessage(chatId, userName + "2");
-							backgroundTimer.stop();
-							userSessionHandler.deleteUserSession(chatId);
-						}
-					} else {
-						executeSendTextMessage(chatId, "Неправильный ответ");
+				if(userMessageText.contains("/start")){
+					if (userMessageText.contains("/5")) {
+						amountIter = 5;
 					}
-				} else {
-					executeSendTextMessage(chatId, "Время на ответ вышло.");
-//                sendMessage(message, "Время на ответ вышло.");
-					userSessionHandler.deleteUserSession(userId);
+					if (userMessageText.contains("/10")) {
+						amountIter = 10;
+					}
+					if (userMessageText.contains("/15")) {
+						amountIter = 15;
+					}
+
+					while (userSessionHandler.sessionIsActive(chatId)) {
+
+						String questionAndAnswer = questionAnswerGenerator.getNewQuestionAndAnswerForUser();
+
+						String[] questionAndAnswerArray = questionAndAnswer.split("\\|");
+						String question = questionAndAnswerArray[0];
+
+						rightAnswer = questionAndAnswerArray[1];
+
+						executeSendTextMessage(chatId, question);
+
+						int iter = 0;
+
+						while (amountIter == iter) {
+							LocalDateTime currentDate = LocalDateTime.now();
+
+							if (userSessionHandler.validateDate(currentDate, chatId)) {
+
+
+								if (rightAnswer.contains(userMessageText)) {
+
+									if (backgroundTimer.getCurrentSeconds() >= 0 && backgroundTimer.getCurrentSeconds() < 15) {
+										userScoreHandler.incrementUserScore(userId, 3);
+										executeSendTextMessage(chatId, userName + " 3");
+										iter++;
+										backgroundTimer.stop();
+										userSessionHandler.deleteUserSession(chatId);
+									}
+									if (backgroundTimer.getCurrentSeconds() >= 15 && backgroundTimer.getCurrentSeconds() < 45) {
+										userScoreHandler.incrementUserScore(userId, 2);
+										executeSendTextMessage(chatId, userName + " 2");
+										iter++;
+										backgroundTimer.stop();
+										userSessionHandler.deleteUserSession(chatId);
+									}
+									if (backgroundTimer.getCurrentSeconds() >= 1 && backgroundTimer.getCurrentSeconds() < 15) {
+										userScoreHandler.incrementUserScore(userId, 1);
+										executeSendTextMessage(chatId, userName + " 1");
+										iter++;
+										backgroundTimer.stop();
+										userSessionHandler.deleteUserSession(chatId);
+									}
+								} else {
+									executeSendTextMessage(chatId, "Неправильный ответ");
+								}
+							} else {
+								userSessionHandler.deleteUserSession(userId);
+								executeSendTextMessage(chatId, "Время на ответ вышло.");
+							}
+						}
+					}
 				}
 			}
 
@@ -195,6 +223,18 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		sendMessage.setChatId(chatId);
 		sendMessage.setText("Выбери команду");
 		sendMessage.setReplyMarkup(getMainBotMarkup());
+		try {
+			execute(sendMessage);
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void executeSelectMenu(Long chatId) {
+		SendMessage sendMessage = new SendMessage();
+		sendMessage.setChatId(chatId);
+		sendMessage.setText("Выберите раунды");
+		sendMessage.setReplyMarkup(getSelectMenu());
 		try {
 			execute(sendMessage);
 		} catch (TelegramApiException e) {
@@ -223,12 +263,33 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
 		keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
 		KeyboardRow row1 = new KeyboardRow();
+		KeyboardRow row2 = new KeyboardRow();
+
 		row1.add(new KeyboardButton("/go"));
 		row1.add(new KeyboardButton("/score"));
-		row1.add(new KeyboardButton("/top10"));
-		row1.add(new KeyboardButton("/help"));
+		row2.add(new KeyboardButton("/top10"));
+		row2.add(new KeyboardButton("/help"));
 
 		keyboard.add(row1);
+		keyboard.add(row2);
+
+		keyboardMarkup.setKeyboard(keyboard);
+		return keyboardMarkup;
+	}
+
+	private ReplyKeyboard getSelectMenu() {
+		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
+		keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
+		KeyboardRow row1 = new KeyboardRow();
+		KeyboardRow row2 = new KeyboardRow();
+
+		row1.add(new KeyboardButton("/5"));
+		row1.add(new KeyboardButton("/10"));
+		row2.add(new KeyboardButton("/15"));
+
+		keyboard.add(row1);
+		keyboard.add(row2);
 
 		keyboardMarkup.setKeyboard(keyboard);
 		return keyboardMarkup;

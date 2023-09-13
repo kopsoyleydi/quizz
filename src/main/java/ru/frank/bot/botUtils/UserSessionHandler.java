@@ -22,25 +22,11 @@ public class UserSessionHandler {
         return userSessionDao.getUserById(userId) != null;
     }
 
-    public void createUserSession(Long userId, String questionAndAnswer){
-        String [] questionAndAnswerArray = questionAndAnswer.split("\\|");
-        String question = questionAndAnswerArray[0];
-        String answer = questionAndAnswerArray[1];
+    public void createUserSession(Long userId){
         LocalDateTime dateTime = LocalDateTime.now();
-        userSessionDao.save(new UserSession(userId,dateTime.format(formatter),question, answer));
+        userSessionDao.save(new UserSession(userId,dateTime.format(formatter)));
     }
 
-    public String getQuestionAndAnswerFromDB(long userId){
-        StringBuilder sb = new StringBuilder();
-        UserSession userSession = userSessionDao.getUserById(userId);
-        sb.append(userSession.getQuestion()).append(userSession.getAnswer());
-        return sb.toString();
-    }
-
-    public String getAnswerFromSession(long userId){
-        UserSession userSession = userSessionDao.getUserById(userId);
-        return userSession.getAnswer();
-    }
 
     public void deleteUserSession(long userId){
         userSessionDao.delete(userSessionDao.getUserById(userId));
@@ -52,7 +38,6 @@ public class UserSessionHandler {
     }
 
     /**
-     * Время для ответа пользователя на вопрос = 20 секунд.
      * По истечению времени, текущая сессия должна быть удалена и пользователю отправляется сообщение об истечении
      * времени.
      * @param currentDate - время получения сообщения с ответом на вопрос от пользователя.

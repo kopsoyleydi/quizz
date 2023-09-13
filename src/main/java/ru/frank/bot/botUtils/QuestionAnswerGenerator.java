@@ -8,6 +8,7 @@ import ru.frank.service.QuestionAndAnswerService;
 
 /**
  * Класс для получения объекта класса
+ *
  * @see QuestionAndAnswer
  * из таблицы базы данных. Основной метод: getRandomQuestionAndAnswer возвращает объект QuestionAndAnswer с данными из БД
  * по случайному id в пределах от 1 до максимального ID в БД.
@@ -16,45 +17,47 @@ import ru.frank.service.QuestionAndAnswerService;
 @Service
 public class QuestionAnswerGenerator {
 
-    @Autowired
-    private QuestionAndAnswerDao questionAndAnswerDao;
+	@Autowired
+	private QuestionAndAnswerDao questionAndAnswerDao;
 
-    @Autowired
-    private QuestionAndAnswerService questionAndAnswerService;
+	@Autowired
+	private QuestionAndAnswerService questionAndAnswerService;
 
-    /**
-     * Генерирует случайное число от 1 до Maximum ID из БД
-     * @return (long) [1 ; max ID]
-     */
-    private long getRandomNumber(){
-        return (long) (Math.random() * questionAndAnswerService.getMaximumId() + 1);
-    }
+	/**
+	 * Генерирует случайное число от 1 до Maximum ID из БД
+	 *
+	 * @return (long) [1 ; max ID]
+	 */
+	private long getRandomNumber() {
+		return (long) (Math.random() * questionAndAnswerService.getMaximumId() + 1);
+	}
 
-    /**
-     * Метод для получения случайной записи класса QuestionAndAnswer из таблицы БД
-     * @return QuestionAndAnswer object
-     */
-    private QuestionAndAnswer getRandomQuestionAndAnswer(){
-        QuestionAndAnswer questionAndAnswer = null;
-        while(questionAndAnswer == null){
-            questionAndAnswer = questionAndAnswerDao.getQuestionById(getRandomNumber());
-        }
-        return questionAndAnswer;
-    }
+	/**
+	 * Метод для получения случайной записи класса QuestionAndAnswer из таблицы БД
+	 *
+	 * @return QuestionAndAnswer object
+	 */
+	private QuestionAndAnswer getRandomQuestionAndAnswer() {
+		QuestionAndAnswer questionAndAnswer = null;
+		while (questionAndAnswer == null) {
+			questionAndAnswer = questionAndAnswerDao.getQuestionById(getRandomNumber());
+		}
+		return questionAndAnswer;
+	}
 
-    /**
-     * Метод получает случайный объект класса QuestionAndAnswer с помощью
-     * метода getRandomQuestionAndAnswer() и формирует из полей объекта QuestionAndAnswer
-     * строку содержащую вопрос и ответ разделенные символом '|'.
-     * Например: "В каком году началась Первая мировая война?|1914"
-     *
-     * @return String вопрос и ответ разделенные символом '|'.
-     */
-    public String getNewQuestionAndAnswerForUser(){
-        StringBuilder sb = new StringBuilder();
-        QuestionAndAnswer questionAndAnswer = getRandomQuestionAndAnswer();
-        sb.append(questionAndAnswer.getQuestion()).append("|").append(questionAndAnswer.getAnswer());
-        return sb.toString();
-    }
+	/**
+	 * Метод получает случайный объект класса QuestionAndAnswer с помощью
+	 * метода getRandomQuestionAndAnswer() и формирует из полей объекта QuestionAndAnswer
+	 * строку содержащую вопрос и ответ разделенные символом '|'.
+	 * Например: "В каком году началась Первая мировая война?|1914"
+	 *
+	 * @return String вопрос и ответ разделенные символом '|'.
+	 */
+	public String getNewQuestionAndAnswerForUser() {
+		StringBuilder sb = new StringBuilder();
+		QuestionAndAnswer questionAndAnswer = getRandomQuestionAndAnswer();
+		sb.append(questionAndAnswer.getQuestion()).append("|").append(questionAndAnswer.getAnswer());
+		return sb.toString();
+	}
 
 }

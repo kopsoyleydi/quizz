@@ -8,7 +8,7 @@ import ru.frank.model.UserSession;
 
 @Repository
 @Transactional
-public interface UserSessionDao extends JpaRepository<UserSession,  Long> {
-    UserSession getUserById(Long id);
+public interface UserSessionDao extends JpaRepository<UserSession, Long> {
+	UserSession getUserById(Long id);
 
 }

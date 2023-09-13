@@ -11,16 +11,16 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Component
 public class BotInitializer {
 
-    @Autowired
-    private RussianQuizBot bot;
+	@Autowired
+	private RussianQuizBot bot;
 
-    @EventListener({ContextRefreshedEvent.class})
-    public void init() throws TelegramApiException{
-        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-        try {
-            telegramBotsApi.registerBot(bot);
-        }catch (TelegramApiException e){
-            e.getStackTrace();
-        }
-    }
+	@EventListener({ContextRefreshedEvent.class})
+	public void init() throws TelegramApiException {
+		TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+		try {
+			telegramBotsApi.registerBot(bot);
+		} catch (TelegramApiException e) {
+			e.getStackTrace();
+		}
+	}
 }

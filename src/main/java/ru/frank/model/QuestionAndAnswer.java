@@ -16,11 +16,16 @@ public class QuestionAndAnswer {
     @Column(name = "id")
     private long id;
 
+    @Column(name = "full")
+    private String full;
+
     @Column(name = "question")
     private String question;
 
     @Column(name = "answer")
     private String answer;
+
+
 
     public long getId() {
         return id;
@@ -44,6 +49,14 @@ public class QuestionAndAnswer {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public String getFull() {
+        return full;
+    }
+
+    public void setFull(String full) {
+        this.full = full;
     }
 
     @Override

@@ -33,7 +33,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	static final String ERROR_TEXT = "Error occurred:  ";
 
-	private static int amountIter;
+	private static int amountIter = 0;
 
 	private static String rightAnswer;
 
@@ -124,11 +124,8 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 				executeSendTextMessage(chatId, topUsersScoreString);
 			}
 
-			// Начало новой викторины.
 			if (userMessageText.contains("/go")) {
 
-				// Проверяем наличие текущего пользователя в таблице БД "score",
-				// при отсутствии - добавляем пользователя в таблицу со счетом 0.
 				if (!userScoreHandler.userAlreadyInChart(userId)) {
 					userScoreHandler.addNewUserInChart(userId, userName);
 				}
@@ -139,83 +136,94 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 				backgroundTimer.start();
 
-				//I don't think you need to do anything for your particular problem
-				////sendMessage(message, question);
-				// Отвечаем пользователю, если сообщение не содержит явных указаний для бота (default bot's answer)
 			}
-			else if (userMessageText != null) {
-				executeSendTextMessage(chatId, "Для продолжения команда /start");
+		}
+		if(userSessionHandler.sessionIsActive(chatId)){
+			executeSelectMenu(chatId);
+		}
 
-				if(userMessageText.contains("/start")){
-					if (userMessageText.contains("/5")) {
-						amountIter = 5;
+		if(userMessageText.equals("/5")){
+			amountIter = 5;
+		}
+		else if(userMessageText.equals("/10")){
+			amountIter = 10;
+		}
+		else if(userMessageText.equals("/15")){
+			amountIter = 15;
+		}
+		else {
+			executeSendTextMessage(chatId, "выберите количество или перезагрузите игру");
+		}
+
+		if((amountIter == 5 || amountIter == 10 || amountIter == 15) && userSessionHandler.sessionIsActive(chatId)){
+
+			int iter = 0;
+
+			while (amountIter != iter){
+
+				String questionAndAnswer = questionAnswerGenerator.getNewQuestionAndAnswerForUser();
+
+				String[] questionAndAnswerArray = questionAndAnswer.split("\\|");
+				String question = questionAndAnswerArray[0];
+
+				executeSendTextMessage(chatId, question);
+
+				rightAnswer = questionAndAnswerArray[1];
+
+				if (update.hasCallbackQuery()) {
+					// Answer for empty user's message.
+					if (!update.getMessage().hasText() & !update.hasCallbackQuery()) {
+						executeSendMainMenu(update.getMessage().getChatId());
+						return;
 					}
-					if (userMessageText.contains("/10")) {
-						amountIter = 10;
-					}
-					if (userMessageText.contains("/15")) {
-						amountIter = 15;
-					}
+					message = update.getMessage();
+					userId = message.getFrom().getId();
+					userName = message.getFrom().getUserName();
+					chatId = message.getChatId();
+					userMessageText = message.getText().toLowerCase();
+//            // TODO Заменить на отдельный метод
+//            sendMessage.setChatId(chatId);
+				}
 
-					while (userSessionHandler.sessionIsActive(chatId)) {
+				executeSendTextMessage(chatId, rightAnswer + " true");
 
-						String questionAndAnswer = questionAnswerGenerator.getNewQuestionAndAnswerForUser();
+				LocalDateTime currentDate = LocalDateTime.now();
 
-						String[] questionAndAnswerArray = questionAndAnswer.split("\\|");
-						String question = questionAndAnswerArray[0];
-
-						rightAnswer = questionAndAnswerArray[1];
-
-						executeSendTextMessage(chatId, question);
-
-						int iter = 0;
-
-						while (amountIter == iter) {
-							LocalDateTime currentDate = LocalDateTime.now();
-
-							if (userSessionHandler.validateDate(currentDate, chatId)) {
+				if (userSessionHandler.validateDate(currentDate, chatId)) {
 
 
-								if (rightAnswer.contains(userMessageText)) {
+					if (rightAnswer.contains(userMessageText)) {
 
-									if (backgroundTimer.getCurrentSeconds() >= 0 && backgroundTimer.getCurrentSeconds() < 15) {
-										userScoreHandler.incrementUserScore(userId, 3);
-										executeSendTextMessage(chatId, userName + " 3");
-										iter++;
-										backgroundTimer.stop();
-										userSessionHandler.deleteUserSession(chatId);
-									}
-									if (backgroundTimer.getCurrentSeconds() >= 15 && backgroundTimer.getCurrentSeconds() < 45) {
-										userScoreHandler.incrementUserScore(userId, 2);
-										executeSendTextMessage(chatId, userName + " 2");
-										iter++;
-										backgroundTimer.stop();
-										userSessionHandler.deleteUserSession(chatId);
-									}
-									if (backgroundTimer.getCurrentSeconds() >= 1 && backgroundTimer.getCurrentSeconds() < 15) {
-										userScoreHandler.incrementUserScore(userId, 1);
-										executeSendTextMessage(chatId, userName + " 1");
-										iter++;
-										backgroundTimer.stop();
-										userSessionHandler.deleteUserSession(chatId);
-									}
-								} else {
-									executeSendTextMessage(chatId, "Неправильный ответ");
-								}
-							} else {
-								userSessionHandler.deleteUserSession(userId);
-								executeSendTextMessage(chatId, "Время на ответ вышло.");
-							}
+						if (backgroundTimer.getCurrentSeconds() >= 0 && backgroundTimer.getCurrentSeconds() < 15) {
+							userScoreHandler.incrementUserScore(userId, 3);
+							executeSendTextMessage(chatId, userName + " 3");
+							iter++;
+							backgroundTimer.stop();
+							userSessionHandler.deleteUserSession(chatId);
 						}
+						if (backgroundTimer.getCurrentSeconds() >= 15 && backgroundTimer.getCurrentSeconds() < 45) {
+							userScoreHandler.incrementUserScore(userId, 2);
+							executeSendTextMessage(chatId, userName + " 2");
+							iter++;
+							backgroundTimer.stop();
+							userSessionHandler.deleteUserSession(chatId);
+						}
+						if (backgroundTimer.getCurrentSeconds() >= 1 && backgroundTimer.getCurrentSeconds() < 15) {
+							userScoreHandler.incrementUserScore(userId, 1);
+							executeSendTextMessage(chatId, userName + " 1");
+							iter++;
+							backgroundTimer.stop();
+							userSessionHandler.deleteUserSession(chatId);
+						}
+					} else {
+						executeSendTextMessage(chatId, "Неправильный ответ");
 					}
+				} else {
+					userSessionHandler.deleteUserSession(userId);
+					executeSendTextMessage(chatId, "Время на ответ вышло.");
 				}
 			}
-
 		}
-		//else{
-		//    executeSendMainMenu(chatId);
-		//}
-
 	}
 
 	private void executeSendMainMenu(Long chatId) {

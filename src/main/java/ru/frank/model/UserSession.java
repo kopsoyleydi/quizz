@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class UserSession {
 
 	@Id
-	@Column(name = "id")
+	@Column(name = "chat_id")
 	private Long id;
 
 	@Column(name = "startTime")
@@ -17,14 +17,14 @@ public class UserSession {
 	@Column(name = "amountInit")
 	private int amountInit;
 
-	public UserSession(Long id, String startTime, int amountInit) {
-		this.id = id;
+	public UserSession(Long chat_id, String startTime, int amountInit) {
+		this.id = chat_id;
 		this.startTime = startTime;
 		this.amountInit = amountInit;
 	}
 
-	public UserSession(Long id, String startTime) {
-		this.id = id;
+	public UserSession(Long chat_id, String startTime) {
+		this.id = chat_id;
 		this.startTime = startTime;
 	}
 
@@ -35,8 +35,8 @@ public class UserSession {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setId(Long chat_id) {
+		this.id = chat_id;
 	}
 
 	public String getStartTime() {
@@ -60,7 +60,7 @@ public class UserSession {
 	@Override
 	public String toString() {
 		return "UserSession{" +
-				"id=" + id +
+				"chat_id=" + id +
 				", startTime='" + startTime + '\'' +
 				", amountInit=" + amountInit +
 				'}';

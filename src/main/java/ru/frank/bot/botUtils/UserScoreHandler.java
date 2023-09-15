@@ -34,10 +34,10 @@ public class UserScoreHandler {
 	/**
 	 * Метод добавляет новую запись в таблицу
 	 *
-	 * @param userId
+	 * @param
 	 */
-	public void addNewUserInChart(long userId, String userName) {
-		UserScore userScore = new UserScore(userId, userName, 0);
+	public void addNewUserInChart(long chatId, String userName) {
+		UserScore userScore = new UserScore(chatId, userName, 0);
 		userScoreDao.save(userScore);
 	}
 

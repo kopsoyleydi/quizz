@@ -16,6 +16,6 @@ public class QuestionAndAnswerService {
 
 	public Long getMaximumId() {
 		List<QuestionAndAnswer> questionAndAnswersList = questionAndAnswerDao.findAll();
-		return questionAndAnswersList.get(questionAndAnswersList.size() - 1).getId();
+		return questionAndAnswersList.get(questionAndAnswersList.size() - 1).getChat_id();
 	}
 }

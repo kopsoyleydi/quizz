@@ -13,11 +13,9 @@ public class QuestionAndAnswer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+	@Column(name = "chat_id")
 	private long id;
 
-	@Column(name = "full")
-	private String full;
 
 	@Column(name = "question")
 	private String question;
@@ -25,13 +23,12 @@ public class QuestionAndAnswer {
 	@Column(name = "answer")
 	private String answer;
 
-
-	public long getId() {
+	public long getChat_id() {
 		return id;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setChat_id(long chat_id) {
+		this.id = chat_id;
 	}
 
 	public String getQuestion() {
@@ -50,18 +47,12 @@ public class QuestionAndAnswer {
 		this.answer = answer;
 	}
 
-	public String getFull() {
-		return full;
-	}
 
-	public void setFull(String full) {
-		this.full = full;
-	}
 
 	@Override
 	public String toString() {
 		return "QuestionAndAnswer{" +
-				"id=" + id +
+				"chat_id=" + id +
 				", question='" + question + '\'' +
 				", answer='" + answer + '\'' +
 				'}';

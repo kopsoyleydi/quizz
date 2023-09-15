@@ -33,10 +33,11 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	static final String ERROR_TEXT = "Error occurred:  ";
 
-	private static int amountIter = 0;
+	private static LocalDateTime localDateTime;
 
-	private static String rightAnswer;
+	private static boolean checkGo = false;
 
+	private static int amount = 0;
 	@Value("${bot.name}")
 	String botName;
 	@Value("${bot.token}")
@@ -63,16 +64,13 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 		Message message = null;
 
-		//Текст сообщения от пользователя
 		String userMessageText = null;
 		String userName = null;
 
 		Long userId = null;
 		Long chatId = null;
 
-		// Get text message from user.
 		if (update.hasMessage()) {
-			// Answer for empty user's message.
 			if (!update.getMessage().hasText() & !update.hasCallbackQuery()) {
 				executeSendMainMenu(update.getMessage().getChatId());
 				return;
@@ -82,40 +80,24 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			userName = message.getFrom().getUserName();
 			chatId = message.getChatId();
 			userMessageText = message.getText().toLowerCase();
-//            // TODO Заменить на отдельный метод
-//            sendMessage.setChatId(chatId);
 		}
-		// Get pressed button from user.
 		if (update.hasCallbackQuery()) {
 			message = update.getCallbackQuery().getMessage();
 			userMessageText = update.getCallbackQuery().getData();
 			chatId = message.getChatId();
 			userId = update.getCallbackQuery().getFrom().getId();
 		}
-
-		// Сессия с написавшем пользователем не активна (нет заданного вопроса викторины).
-		if (userMessageText != null) {
+		if(userMessageText!=null){
 
 			if (userMessageText.contains("/help")) {
-				executeSendTextMessage(chatId, "Для начала новой выкторины пришлите мне /go. " +
-						"Для ответа на один вопрос викторины отведено 20 секунд, " +
+				executeSendTextMessage(chatId, "Для начала новой викторины пришлите мне /go. " +
+						"Для всего викторины без зависимости количество раундов будет дано 6 минут секунд, " +
 						"по истечению этого времени, ответ не засчитывается. " +
 						"За правильный ответ засчитывается 1 балл. " +
 						"Для просмотра своего счета пришлите /score.");
 			}
 
-			if (userMessageText.contains("/score")) {
-
-				// Проверяем наличие текущего пользователя в таблице БД "score",
-				if (userScoreHandler.userAlreadyInChart(userId)) {
-					executeSendTextMessage(chatId, "Ваш счет: " + String.valueOf(userScoreHandler.getUserScoreById(userId)));
-				} else {
-					executeSendTextMessage(chatId, "Запись во вашему счету отсутствует, " +
-							"вероятно вы еще не играли в викторину. " +
-							"Для начала пришлите /go.");
-				}
-			}
-			if (userMessageText.contains("/top10")) {
+			if (userMessageText.contains("/top5")) {
 				List<UserScore> topUsersScoreList = userScoreHandler.getTopFiveUserScore();
 				String topUsersScoreString = topUsersScoreList.stream()
 						.map(UserScore::getUserName)
@@ -127,101 +109,50 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			if (userMessageText.contains("/go")) {
 
 				if (!userScoreHandler.userAlreadyInChart(userId)) {
-					userScoreHandler.addNewUserInChart(userId, userName);
+					userScoreHandler.addNewUserInChart(chatId, userName);
 				}
-
-				userSessionHandler.createUserSession(chatId);
-
 				executeSelectMenu(chatId);
 
 				backgroundTimer.start();
 
+				userSessionHandler.createUserSession(chatId);
 			}
-		}
-		if(userSessionHandler.sessionIsActive(chatId)){
-			executeSelectMenu(chatId);
-		}
+			else if (userSessionHandler.sessionIsActive(chatId)){
+				if(userSessionHandler.checkAmount(chatId)){
+					String questionAndAnswer = questionAnswerGenerator.getNewQuestionAndAnswerForUser();
 
-		if(userMessageText.equals("/5")){
-			amountIter = 5;
-		}
-		else if(userMessageText.equals("/10")){
-			amountIter = 10;
-		}
-		else if(userMessageText.equals("/15")){
-			amountIter = 15;
-		}
-		else {
-			executeSendTextMessage(chatId, "выберите количество или перезагрузите игру");
-		}
+					String[] questionAndAnswerArray = questionAndAnswer.split("\\|");
+					String question = questionAndAnswerArray[0];
 
-		if((amountIter == 5 || amountIter == 10 || amountIter == 15) && userSessionHandler.sessionIsActive(chatId)){
+					executeSendTextMessage(chatId, question);
 
-			int iter = 0;
+					String rightAnswer = questionAndAnswerArray[1];
 
-			while (amountIter != iter){
-
-				String questionAndAnswer = questionAnswerGenerator.getNewQuestionAndAnswerForUser();
-
-				String[] questionAndAnswerArray = questionAndAnswer.split("\\|");
-				String question = questionAndAnswerArray[0];
-
-				executeSendTextMessage(chatId, question);
-
-				rightAnswer = questionAndAnswerArray[1];
-
-				if (update.hasCallbackQuery()) {
-					// Answer for empty user's message.
-					if (!update.getMessage().hasText() & !update.hasCallbackQuery()) {
-						executeSendMainMenu(update.getMessage().getChatId());
-						return;
+					if(rightAnswer.contains(userMessageText)){
+						userScoreHandler.incrementUserScore(userId, 3);
+						executeSendTextMessage(chatId, "true " + userName);
+						userSessionHandler.minusAmountIter(chatId);
 					}
-					message = update.getMessage();
-					userId = message.getFrom().getId();
-					userName = message.getFrom().getUserName();
-					chatId = message.getChatId();
-					userMessageText = message.getText().toLowerCase();
-//            // TODO Заменить на отдельный метод
-//            sendMessage.setChatId(chatId);
 				}
-
-				executeSendTextMessage(chatId, rightAnswer + " true");
-
-				LocalDateTime currentDate = LocalDateTime.now();
-
-				if (userSessionHandler.validateDate(currentDate, chatId)) {
-
-
-					if (rightAnswer.contains(userMessageText)) {
-
-						if (backgroundTimer.getCurrentSeconds() >= 0 && backgroundTimer.getCurrentSeconds() < 15) {
-							userScoreHandler.incrementUserScore(userId, 3);
-							executeSendTextMessage(chatId, userName + " 3");
-							iter++;
-							backgroundTimer.stop();
-							userSessionHandler.deleteUserSession(chatId);
-						}
-						if (backgroundTimer.getCurrentSeconds() >= 15 && backgroundTimer.getCurrentSeconds() < 45) {
-							userScoreHandler.incrementUserScore(userId, 2);
-							executeSendTextMessage(chatId, userName + " 2");
-							iter++;
-							backgroundTimer.stop();
-							userSessionHandler.deleteUserSession(chatId);
-						}
-						if (backgroundTimer.getCurrentSeconds() >= 1 && backgroundTimer.getCurrentSeconds() < 15) {
-							userScoreHandler.incrementUserScore(userId, 1);
-							executeSendTextMessage(chatId, userName + " 1");
-							iter++;
-							backgroundTimer.stop();
-							userSessionHandler.deleteUserSession(chatId);
-						}
-					} else {
-						executeSendTextMessage(chatId, "Неправильный ответ");
-					}
-				} else {
-					userSessionHandler.deleteUserSession(userId);
-					executeSendTextMessage(chatId, "Время на ответ вышло.");
+				else {
+					executeSendTextMessage(chatId, "Введите количество раундов");
 				}
+			}
+			else if(userSessionHandler.checkActiveAmount(chatId)){
+				backgroundTimer.stop();
+				userSessionHandler.deleteUserSession(chatId);
+			}
+			if(userMessageText.contains("/5")){
+				amount = 5;
+				userSessionHandler.setAmountInit(chatId, amount);
+			}
+			if(userMessageText.contains("/10")){
+				amount = 10;
+				userSessionHandler.setAmountInit(chatId, amount);
+			}
+			if(userMessageText.contains("/15")){
+				amount = 15;
+				userSessionHandler.setAmountInit(chatId, amount);
 			}
 		}
 	}
@@ -261,11 +192,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		}
 	}
 
-	/**
-	 * Method builds main bot menu buttons that contains basic bot commands.
-	 *
-	 * @return InlineKeyboardMarkup object with build menu.
-	 */
 	private ReplyKeyboard getMainBotMarkup() {
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
@@ -275,7 +201,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 		row1.add(new KeyboardButton("/go"));
 		row1.add(new KeyboardButton("/score"));
-		row2.add(new KeyboardButton("/top10"));
+		row2.add(new KeyboardButton("/top5"));
 		row2.add(new KeyboardButton("/help"));
 
 		keyboard.add(row1);
@@ -303,12 +229,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		return keyboardMarkup;
 	}
 
-	/**
-	 * Send text constructed by Bot to user who's asking.
-	 *
-	 * @param
-	 * @param
-	 */
 	@Deprecated
 	private void sendMessage(long chatId, String textToSend) {
 		SendMessage message = new SendMessage();
@@ -324,7 +244,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			log.error(ERROR_TEXT + e.getMessage());
 		}
 	}
-
 
 	@Override
 	public String getBotUsername() {

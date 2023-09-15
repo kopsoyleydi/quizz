@@ -7,9 +7,8 @@ import jakarta.persistence.*;
 public class UserScore {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "chat_id")
     private Long id;
-
 
     @Column
     private String userName;
@@ -18,8 +17,8 @@ public class UserScore {
     private long score;
 
 
-
     public UserScore() {
+
     }
 
     public UserScore(Long id, String userName, long score) {
@@ -27,6 +26,7 @@ public class UserScore {
         this.userName = userName;
         this.score = score;
     }
+
     public Long getId() {
         return id;
     }

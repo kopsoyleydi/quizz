@@ -2,23 +2,15 @@ package ru.frank.bot.botUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.frank.dataBaseUtil.QuestionAndAnswerDao;
-import ru.frank.model.QuestionAndAnswer;
+import ru.frank.dataBaseUtil.QuestionsDao;
+import ru.frank.model.Questions;
 import ru.frank.service.QuestionAndAnswerService;
-
-/**
- * Класс для получения объекта класса
- *
- * @see QuestionAndAnswer
- * из таблицы базы данных. Основной метод: getRandomQuestionAndAnswer возвращает объект QuestionAndAnswer с данными из БД
- * по случайному id в пределах от 1 до максимального ID в БД.
- */
 
 @Service
 public class QuestionAnswerGenerator {
 
 	@Autowired
-	private QuestionAndAnswerDao questionAndAnswerDao;
+	private QuestionsDao questionsDao;
 
 	@Autowired
 	private QuestionAndAnswerService questionAndAnswerService;
@@ -37,12 +29,12 @@ public class QuestionAnswerGenerator {
 	 *
 	 * @return QuestionAndAnswer object
 	 */
-	private QuestionAndAnswer getRandomQuestionAndAnswer() {
-		QuestionAndAnswer questionAndAnswer = null;
-		while (questionAndAnswer == null) {
-			questionAndAnswer = questionAndAnswerDao.getQuestionById(getRandomNumber());
+	public Questions getRandomQuestionAndAnswer() {
+		Questions questions = null;
+		while (questions == null) {
+			questions = this.questionsDao.getQuestionById(getRandomNumber());
 		}
-		return questionAndAnswer;
+		return questions;
 	}
 
 	/**
@@ -53,11 +45,5 @@ public class QuestionAnswerGenerator {
 	 *
 	 * @return String вопрос и ответ разделенные символом '|'.
 	 */
-	public String getNewQuestionAndAnswerForUser() {
-		StringBuilder sb = new StringBuilder();
-		QuestionAndAnswer questionAndAnswer = getRandomQuestionAndAnswer();
-		sb.append(questionAndAnswer.getQuestion()).append("|").append(questionAndAnswer.getAnswer());
-		return sb.toString();
-	}
 
 }

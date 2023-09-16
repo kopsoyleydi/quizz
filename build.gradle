@@ -21,6 +21,7 @@ dependencies {
 	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.28'
 	implementation 'org.telegram:telegrambots:6.5.0'
 	compileOnly 'org.projectlombok:lombok'
+	implementation 'org.hibernate.validator:hibernate-validator:7.0.2.Final'
 	// https://mvnrepository.com/artifact/org.slf4j/slf4j-api
 	implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.7'
 	testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.12.RELEASE'

@@ -3,6 +3,8 @@ package ru.frank.service;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 @Async
 public class BackgroundTimer {
@@ -29,7 +31,7 @@ public class BackgroundTimer {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			if (elapsedTime >= 120000) { // Остановить после 120 секунд
+			if (elapsedTime >= 60000) { // Остановить после 60 секунд
 				isRunning = false;
 			}
 		}
@@ -39,12 +41,14 @@ public class BackgroundTimer {
 		stopRequested = true;
 	}
 
-	public long getCurrentSeconds() {
+
+
+	public CompletableFuture<Long> getCurrentSeconds() {
 		if (isRunning) {
 			long elapsedTime = System.currentTimeMillis() - startTime;
-			return elapsedTime / 1000;
+			return CompletableFuture.completedFuture(elapsedTime / 1000);
 		} else {
-			return 0;
+			return CompletableFuture.completedFuture(0L);
 		}
 	}
 }

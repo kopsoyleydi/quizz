@@ -1,35 +1,37 @@
 package ru.frank.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 
 @Entity
-@Table(name = "questions")
-@NoArgsConstructor
-@AllArgsConstructor
 public class QuestionAndAnswer {
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "chat_id")
-	private long id;
+	private Long id;
 
-
-	@Column(name = "question")
 	private String question;
 
-	@Column(name = "answer")
 	private String answer;
 
-	public long getChat_id() {
-		return id;
+	@Column(name = "chat_id")
+	private Long chatId;
+
+	public Long getChatId() {
+		return chatId;
 	}
 
-	public void setChat_id(long chat_id) {
-		this.id = chat_id;
+	public void setChatId(Long chatId) {
+		this.chatId = chatId;
 	}
+
+	public QuestionAndAnswer(String question, String answer, Long chatId) {
+		this.question = question;
+		this.answer = answer;
+		this.chatId = chatId;
+	}
+
+	public QuestionAndAnswer() {
+	}
+
 
 	public String getQuestion() {
 		return question;
@@ -47,14 +49,11 @@ public class QuestionAndAnswer {
 		this.answer = answer;
 	}
 
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-
-	@Override
-	public String toString() {
-		return "QuestionAndAnswer{" +
-				"chat_id=" + id +
-				", question='" + question + '\'' +
-				", answer='" + answer + '\'' +
-				'}';
+	public Long getId() {
+		return id;
 	}
 }

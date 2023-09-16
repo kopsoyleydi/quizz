@@ -15,16 +15,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.frank.bot.botUtils.QuestionAnswerGenerator;
 import ru.frank.bot.botUtils.UserScoreHandler;
 import ru.frank.bot.botUtils.UserSessionHandler;
-import ru.frank.model.UserScore;
-import ru.frank.service.BackgroundTimer;
+import ru.frank.service.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class RussianQuizBot extends TelegramLongPollingBot {
@@ -33,18 +30,11 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	static final String ERROR_TEXT = "Error occurred:  ";
 
-	private static LocalDateTime localDateTime;
 
-	private static boolean checkGo = false;
-
-	private static int amount = 0;
 	@Value("${bot.name}")
 	String botName;
 	@Value("${bot.token}")
 	String token;
-
-	@Autowired
-	QuestionAnswerGenerator questionAnswerGenerator;
 
 	@Autowired
 	UserSessionHandler userSessionHandler;
@@ -55,38 +45,32 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	@Autowired
 	BackgroundTimer backgroundTimer;
 
-	// TODO Сделать красиво (это уродливо), рефакторнуть на разные методы.
-	// TODO Меньше вложенных if if if.
+	@Autowired
+	SessionService sessionService;
+
+	@Autowired
+	AmountService amountService;
+
+	@Autowired
+	QuestionService questionService;
+
+	@Autowired
+	QuestionAndAnswerService questionAndAnswerService;
+
+	private static String question;
 
 	@Override
 	public void onUpdateReceived(Update update) {
 
 
-		Message message = null;
+		Message message = update.getMessage();
 
-		String userMessageText = null;
-		String userName = null;
+		String userMessageText = message.getText().toLowerCase();
 
-		Long userId = null;
-		Long chatId = null;
+		long userId = message.getFrom().getId();
+		String userName = message.getFrom().getUserName();
+		Long chatId = message.getChatId();
 
-		if (update.hasMessage()) {
-			if (!update.getMessage().hasText() & !update.hasCallbackQuery()) {
-				executeSendMainMenu(update.getMessage().getChatId());
-				return;
-			}
-			message = update.getMessage();
-			userId = message.getFrom().getId();
-			userName = message.getFrom().getUserName();
-			chatId = message.getChatId();
-			userMessageText = message.getText().toLowerCase();
-		}
-		if (update.hasCallbackQuery()) {
-			message = update.getCallbackQuery().getMessage();
-			userMessageText = update.getCallbackQuery().getData();
-			chatId = message.getChatId();
-			userId = update.getCallbackQuery().getFrom().getId();
-		}
 		if(userMessageText!=null){
 
 			if (userMessageText.contains("/help")) {
@@ -97,64 +81,105 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 						"Для просмотра своего счета пришлите /score.");
 			}
 
-			if (userMessageText.contains("/top5")) {
-				List<UserScore> topUsersScoreList = userScoreHandler.getTopFiveUserScore();
-				String topUsersScoreString = topUsersScoreList.stream()
-						.map(UserScore::getUserName)
-						.collect(Collectors.joining(System.lineSeparator()));
-				executeSendTextMessage(chatId, topUsersScoreString);
-				executeSendTextMessage(chatId, topUsersScoreString);
-			}
-
-			if (userMessageText.contains("/go")) {
-
+			if(userMessageText.contains("/go")){
 				if (!userScoreHandler.userAlreadyInChart(userId)) {
 					userScoreHandler.addNewUserInChart(chatId, userName);
 				}
+
 				executeSelectMenu(chatId);
 
 				backgroundTimer.start();
 
 				userSessionHandler.createUserSession(chatId);
-			}
-			else if (userSessionHandler.sessionIsActive(chatId)){
-				if(userSessionHandler.checkAmount(chatId)){
-					String questionAndAnswer = questionAnswerGenerator.getNewQuestionAndAnswerForUser();
 
-					String[] questionAndAnswerArray = questionAndAnswer.split("\\|");
-					String question = questionAndAnswerArray[0];
-
-					executeSendTextMessage(chatId, question);
-
-					String rightAnswer = questionAndAnswerArray[1];
-
-					if(rightAnswer.contains(userMessageText)){
-						userScoreHandler.incrementUserScore(userId, 3);
-						executeSendTextMessage(chatId, "true " + userName);
-						userSessionHandler.minusAmountIter(chatId);
-					}
-				}
-				else {
-					executeSendTextMessage(chatId, "Введите количество раундов");
-				}
-			}
-			else if(userSessionHandler.checkActiveAmount(chatId)){
-				backgroundTimer.stop();
-				userSessionHandler.deleteUserSession(chatId);
 			}
 			if(userMessageText.contains("/5")){
-				amount = 5;
-				userSessionHandler.setAmountInit(chatId, amount);
+				userSessionHandler.setAmountInit(chatId, 5);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				executeSendTextMessage(chatId, questionService.getQuestion(chatId) + "?");
 			}
 			if(userMessageText.contains("/10")){
-				amount = 10;
-				userSessionHandler.setAmountInit(chatId, amount);
+				userSessionHandler.setAmountInit(chatId, 10);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				executeSendTextMessage(chatId, questionService.getQuestion(chatId)  + "?");
 			}
 			if(userMessageText.contains("/15")){
-				amount = 15;
-				userSessionHandler.setAmountInit(chatId, amount);
+				userSessionHandler.setAmountInit(chatId, 15);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				executeSendTextMessage(chatId, questionService.getQuestion(chatId)  + "?");
 			}
 		}
+		if(sessionService.checkSession(chatId)){
+
+			if (amountService.checkRound(chatId)){
+				Long seconds = 0L;
+				try {
+					seconds = backgroundTimer.getCurrentSeconds().get();
+				} catch (InterruptedException | ExecutionException e) {
+					throw new RuntimeException(e);
+				}
+
+				if(userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
+					backgroundTimer.stop();
+					if(seconds >= 0 && seconds <= 15){
+						userScoreHandler.incrementUserScore(userId, 3);
+						userSessionHandler.minusAmountIter(chatId);
+						questionAndAnswerService.deleteQuestionByChatID(chatId);
+						executeSendTextMessage(chatId, "Правильный ответ, дальше");
+						backgroundTimer.start();
+						if(amountService.checkRound(chatId)){
+							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
+						}
+						else {
+							executeSendTextMessage(chatId, "Игра окончена");
+							userSessionHandler.deleteUserSession(chatId);
+						}
+					}
+					else if(seconds >= 16 && seconds <= 40){
+						userScoreHandler.incrementUserScore(userId, 2);
+						userSessionHandler.minusAmountIter(chatId);
+						questionAndAnswerService.deleteQuestionByChatID(chatId);
+						backgroundTimer.start();
+						executeSendTextMessage(chatId, "Правильный ответ, дальше");
+						if(amountService.checkRound(chatId)){
+							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
+						}
+						else {
+							executeSendTextMessage(chatId, "Игра окончена");
+							userSessionHandler.deleteUserSession(chatId);
+						}
+					}
+					else if(seconds >= 41 && seconds <= 59){
+						userScoreHandler.incrementUserScore(userId, 1);
+						questionAndAnswerService.deleteQuestionByChatID(chatId);
+						userSessionHandler.minusAmountIter(chatId);
+						backgroundTimer.start();
+						executeSendTextMessage(chatId, "Правильный ответ, дальше");
+						if(amountService.checkRound(chatId)){
+							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
+						}
+						else {
+							executeSendTextMessage(chatId, "Игра окончена");
+							userSessionHandler.deleteUserSession(chatId);
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 	private void executeSendMainMenu(Long chatId) {

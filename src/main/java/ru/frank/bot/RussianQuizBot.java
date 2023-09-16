@@ -88,9 +88,10 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 				executeSelectMenu(chatId);
 
-				timerService.startTimer(chatId);
 
 				userSessionHandler.createUserSession(chatId);
+
+				timerService.startTimer(chatId);
 
 			}
 			if(userMessageText.contains("/5")){

@@ -43,7 +43,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	UserScoreHandler userScoreHandler;
 
 	@Autowired
-	BackgroundTimer backgroundTimer;
+	TimerService timerService;
 
 	@Autowired
 	SessionService sessionService;
@@ -88,7 +88,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 				executeSelectMenu(chatId);
 
-				backgroundTimer.start();
+				timerService.startTimer(chatId);
 
 				userSessionHandler.createUserSession(chatId);
 
@@ -127,19 +127,19 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			if (amountService.checkRound(chatId)){
 				Long seconds = 0L;
 				try {
-					seconds = backgroundTimer.getCurrentSeconds().get();
+					seconds = timerService.getCurrentSeconds(chatId).get();
 				} catch (InterruptedException | ExecutionException e) {
 					throw new RuntimeException(e);
 				}
 
 				if(userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
-					backgroundTimer.stop();
+					timerService.stopTimer(chatId);
 					if(seconds >= 0 && seconds <= 15){
 						userScoreHandler.incrementUserScore(userId, 3);
 						userSessionHandler.minusAmountIter(chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						executeSendTextMessage(chatId, "Правильный ответ, дальше");
-						backgroundTimer.start();
+						timerService.startTimer(chatId);
 						if(amountService.checkRound(chatId)){
 							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
 						}
@@ -152,7 +152,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 						userScoreHandler.incrementUserScore(userId, 2);
 						userSessionHandler.minusAmountIter(chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						backgroundTimer.start();
+						timerService.startTimer(chatId);
 						executeSendTextMessage(chatId, "Правильный ответ, дальше");
 						if(amountService.checkRound(chatId)){
 							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
@@ -166,7 +166,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 						userScoreHandler.incrementUserScore(userId, 1);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						userSessionHandler.minusAmountIter(chatId);
-						backgroundTimer.start();
+						timerService.startTimer(chatId);
 						executeSendTextMessage(chatId, "Правильный ответ, дальше");
 						if(amountService.checkRound(chatId)){
 							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
@@ -174,6 +174,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 						else {
 							executeSendTextMessage(chatId, "Игра окончена");
 							userSessionHandler.deleteUserSession(chatId);
+							timerService.stopTimer(chatId);
 						}
 					}
 				}

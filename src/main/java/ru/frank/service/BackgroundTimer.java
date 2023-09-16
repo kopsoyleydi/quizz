@@ -12,6 +12,12 @@ public class BackgroundTimer {
 	private boolean isRunning;
 	private boolean stopRequested;
 
+	private CompletableFuture<Void> stopFuture;
+
+	public void setStopFuture(CompletableFuture<Void> stopFuture) {
+		this.stopFuture = stopFuture;
+	}
+
 	public BackgroundTimer() {
 		isRunning = false;
 		stopRequested = false;
@@ -34,6 +40,11 @@ public class BackgroundTimer {
 			if (elapsedTime >= 60000) { // Остановить после 60 секунд
 				isRunning = false;
 			}
+		}
+
+		stop();
+		if (stopFuture != null) {
+			stopFuture.complete(null);
 		}
 	}
 

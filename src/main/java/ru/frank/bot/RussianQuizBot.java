@@ -146,6 +146,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 						else {
 							executeSendTextMessage(chatId, "Игра окончена");
 							userSessionHandler.deleteUserSession(chatId);
+							timerService.stopTimer(chatId);
 						}
 					}
 					else if(seconds >= 16 && seconds <= 40){
@@ -160,6 +161,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 						else {
 							executeSendTextMessage(chatId, "Игра окончена");
 							userSessionHandler.deleteUserSession(chatId);
+							timerService.stopTimer(chatId);
 						}
 					}
 					else if(seconds >= 41 && seconds <= 59){
@@ -177,8 +179,11 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 							timerService.stopTimer(chatId);
 						}
 					}
+				}{
+					executeSendTextMessage(chatId, "Неправильный ответ");
 				}
 			}
+
 		}
 
 	}

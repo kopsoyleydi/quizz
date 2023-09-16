@@ -22,4 +22,8 @@ public class TimerService {
 	public CompletableFuture<Long> getCurrentSeconds(Long chatId) {
 		return timerManager.getCurrentSeconds(chatId);
 	}
+
+	public boolean isTimerActive(Long chatId) {
+		return timerManager.isTimerActive(chatId);
+	}
 }

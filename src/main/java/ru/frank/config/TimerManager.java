@@ -35,4 +35,8 @@ public class TimerManager {
 			return CompletableFuture.completedFuture(0L);
 		}
 	}
+
+	public boolean isTimerActive(Long chatId) {
+		return activeTimers.containsKey(chatId);
+	}
 }

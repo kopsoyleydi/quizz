@@ -19,6 +19,7 @@ public class MessageBot extends TelegramLongPollingBot {
 	TimerManager timerManager;
 
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private Runnable messageTask;
 
 	@Autowired
 	QuestionAndAnswerService questionAndAnswerService;
@@ -32,8 +33,10 @@ public class MessageBot extends TelegramLongPollingBot {
 	}
 
 	public MessageBot(Long chatId) {
-		// Запуск планировщика для отправки подсказок каждые 15 секунд
-		scheduler.scheduleAtFixedRate(() -> sendHint(chatId), 0, 15, TimeUnit.SECONDS);
+
+		messageTask = () -> sendHint(chatId);
+
+		scheduler.scheduleAtFixedRate(messageTask, 0, 15, TimeUnit.SECONDS);
 	}
 
 	private void sendHint(Long chatId) {
@@ -60,19 +63,15 @@ public class MessageBot extends TelegramLongPollingBot {
 		}
 	}
 
+	public void stopSendingMessages() {
+		if (scheduler != null && !scheduler.isShutdown()) {
+			scheduler.shutdown();
+		}
+	}
+
 	@Override
 	public void onUpdateReceived(Update update) {
-		CompletableFuture<Long> sec = timerManager.getCurrentSeconds(update.getMessage().getChatId());
-		long seconds = 0L;
-		try {
-			seconds = sec.get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
 
-		if(seconds == 20){
-			sendHint(update.getMessage().getChatId());
-		}
 	}
 
 	@Override

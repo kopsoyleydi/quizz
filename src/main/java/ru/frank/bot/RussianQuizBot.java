@@ -57,6 +57,9 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	@Autowired
 	QuestionAndAnswerService questionAndAnswerService;
 
+	@Autowired
+	MessageBot messageBot;
+
 	private static String question;
 
 	@Override
@@ -92,6 +95,8 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 				userSessionHandler.createUserSession(chatId);
 
 				timerService.startTimer(chatId);
+
+				messageBot = new MessageBot(chatId);
 
 			}
 			if(userMessageText.contains("/5")){
@@ -138,6 +143,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					if(seconds >= 0 && seconds <= 15){
 						userScoreHandler.incrementUserScore(userId, 3);
 						userSessionHandler.minusAmountIter(chatId);
+						messageBot.stopSendingMessages();
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						executeSendTextMessage(chatId, "Правильный ответ, дальше");
 						timerService.startTimer(chatId);
@@ -153,6 +159,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					else if(seconds >= 16 && seconds <= 40){
 						userScoreHandler.incrementUserScore(userId, 2);
 						userSessionHandler.minusAmountIter(chatId);
+						messageBot.stopSendingMessages();
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerService.startTimer(chatId);
 						executeSendTextMessage(chatId, "Правильный ответ, дальше");
@@ -168,6 +175,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					else if(seconds >= 41 && seconds <= 59){
 						userScoreHandler.incrementUserScore(userId, 1);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
+						messageBot.stopSendingMessages();
 						userSessionHandler.minusAmountIter(chatId);
 						timerService.startTimer(chatId);
 						executeSendTextMessage(chatId, "Правильный ответ, дальше");

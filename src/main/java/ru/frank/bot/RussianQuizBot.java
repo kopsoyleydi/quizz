@@ -96,7 +96,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 				timerService.startTimer(chatId);
 
-				messageBot = new MessageBot(chatId);
+				messageBot.startMessageBot(chatId);
 
 			}
 			if(userMessageText.contains("/5")){
@@ -188,7 +188,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 							timerService.stopTimer(chatId);
 						}
 					}
-				}{
+				}else if(!userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
 					executeSendTextMessage(chatId, "Неправильный ответ");
 				}
 			}

@@ -14,11 +14,15 @@ public class BotInitializer {
 	@Autowired
 	private RussianQuizBot bot;
 
+	@Autowired
+	private MessageBot messageBot;
+
 	@EventListener({ContextRefreshedEvent.class})
 	public void init() throws TelegramApiException {
 		TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
 		try {
 			telegramBotsApi.registerBot(bot);
+			telegramBotsApi.registerBot(messageBot);
 		} catch (TelegramApiException e) {
 			e.getStackTrace();
 		}

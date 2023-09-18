@@ -2,6 +2,7 @@ package ru.frank.bot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,7 +20,6 @@ public class MessageBot extends TelegramLongPollingBot {
 	TimerManager timerManager;
 
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-	private Runnable messageTask;
 
 	@Autowired
 	QuestionAndAnswerService questionAndAnswerService;
@@ -30,15 +30,15 @@ public class MessageBot extends TelegramLongPollingBot {
 	String token;
 
 	public MessageBot() {
+
 	}
 
-	public MessageBot(Long chatId) {
 
-		messageTask = () -> sendHint(chatId);
+	public void startMessageBot(Long chatId){
+		Runnable messageTask = () -> sendHint(chatId);
 
 		scheduler.scheduleAtFixedRate(messageTask, 0, 15, TimeUnit.SECONDS);
 	}
-
 	private void sendHint(Long chatId) {
 
 		String answer = questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer();

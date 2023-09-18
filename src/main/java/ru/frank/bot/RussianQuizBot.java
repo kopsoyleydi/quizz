@@ -91,16 +91,14 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 				executeSelectMenu(chatId);
 
-
 				userSessionHandler.createUserSession(chatId);
 
 				timerService.startTimer(chatId);
 
-				messageBot.startMessageBot(chatId);
-
 			}
 			if(userMessageText.contains("/5")){
 				userSessionHandler.setAmountInit(chatId, 5);
+				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -110,6 +108,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/10")){
 				userSessionHandler.setAmountInit(chatId, 10);
+				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -119,6 +118,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/15")){
 				userSessionHandler.setAmountInit(chatId, 15);
+				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -130,7 +130,11 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		}
 		if(sessionService.checkSession(chatId)){
 
+
 			if (amountService.checkRound(chatId)){
+
+				messageBot.startMessageBot(chatId);
+
 				Long seconds = 0L;
 				try {
 					seconds = timerService.getCurrentSeconds(chatId).get();
@@ -143,58 +147,46 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					if(seconds >= 0 && seconds <= 15){
 						userScoreHandler.incrementUserScore(userId, 3);
 						userSessionHandler.minusAmountIter(chatId);
-						messageBot.stopSendingMessages();
+						messageBot.startMessageBot(chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						executeSendTextMessage(chatId, "Правильный ответ, дальше");
-						timerService.startTimer(chatId);
-						if(amountService.checkRound(chatId)){
-							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
-						}
-						else {
-							executeSendTextMessage(chatId, "Игра окончена");
-							userSessionHandler.deleteUserSession(chatId);
-							timerService.stopTimer(chatId);
-						}
+						timerStarting(chatId);
 					}
 					else if(seconds >= 16 && seconds <= 40){
 						userScoreHandler.incrementUserScore(userId, 2);
 						userSessionHandler.minusAmountIter(chatId);
 						messageBot.stopSendingMessages();
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						timerService.startTimer(chatId);
-						executeSendTextMessage(chatId, "Правильный ответ, дальше");
-						if(amountService.checkRound(chatId)){
-							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
-						}
-						else {
-							executeSendTextMessage(chatId, "Игра окончена");
-							userSessionHandler.deleteUserSession(chatId);
-							timerService.stopTimer(chatId);
-						}
+						timerStarting(chatId);
 					}
 					else if(seconds >= 41 && seconds <= 59){
 						userScoreHandler.incrementUserScore(userId, 1);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						messageBot.stopSendingMessages();
 						userSessionHandler.minusAmountIter(chatId);
-						timerService.startTimer(chatId);
-						executeSendTextMessage(chatId, "Правильный ответ, дальше");
-						if(amountService.checkRound(chatId)){
-							executeSendTextMessage(chatId, questionService.getQuestion(chatId));
-						}
-						else {
-							executeSendTextMessage(chatId, "Игра окончена");
-							userSessionHandler.deleteUserSession(chatId);
-							timerService.stopTimer(chatId);
-						}
+						timerStarting(chatId);
 					}
 				}else if(!userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
 					executeSendTextMessage(chatId, "Неправильный ответ");
+					messageBot.startMessageBot(chatId);
 				}
 			}
 
 		}
 
+	}
+
+	private void timerStarting(Long chatId) {
+		timerService.startTimer(chatId);
+		executeSendTextMessage(chatId, "Правильный ответ, дальше");
+		if(amountService.checkRound(chatId)){
+			executeSendTextMessage(chatId, questionService.getQuestion(chatId));
+		}
+		else {
+			executeSendTextMessage(chatId, "Игра окончена");
+			userSessionHandler.deleteUserSession(chatId);
+			messageBot.stopSendingMessages();
+			timerService.stopTimer(chatId);
+		}
 	}
 
 	private void executeSendMainMenu(Long chatId) {

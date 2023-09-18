@@ -1,8 +1,9 @@
 package ru.frank.bot;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,7 +20,7 @@ public class MessageBot extends TelegramLongPollingBot {
 	@Autowired
 	TimerManager timerManager;
 
-	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	@Autowired
 	QuestionAndAnswerService questionAndAnswerService;
@@ -29,15 +30,27 @@ public class MessageBot extends TelegramLongPollingBot {
 	@Value("${bot.token}")
 	String token;
 
+	private final Logger log = LoggerFactory.getLogger(Object.class);
+
+	private volatile boolean running = false;
+
 	public MessageBot() {
 
 	}
 
 
 	public void startMessageBot(Long chatId){
+
+		if (scheduler.isShutdown()) {
+			scheduler = Executors.newScheduledThreadPool(1); // Создаем новый пул потоков
+		}
+
 		Runnable messageTask = () -> sendHint(chatId);
 
+		log.info("Starting the message sending scheduler.");
+
 		scheduler.scheduleAtFixedRate(messageTask, 0, 15, TimeUnit.SECONDS);
+		running = true;
 	}
 	private void sendHint(Long chatId) {
 
@@ -47,13 +60,13 @@ public class MessageBot extends TelegramLongPollingBot {
 
 		StringBuilder resultString = new StringBuilder(firstChar + " " + lastChar);
 
-		int paddingLength = answer.length() - 2; // Вычисляем сколько пространства нужно добавить
+		int paddingLength = answer.length() - 2;
 		for (int i = 0; i < paddingLength; i++) {
 			resultString.append(" ");
 		}
 
 		SendMessage message = new SendMessage();
-		message.setChatId(chatId); // Укажите ID чата, в котором вы хотите отправлять подсказки
+		message.setChatId(chatId);
 		message.setText(String.valueOf(resultString));
 
 		try {
@@ -64,8 +77,12 @@ public class MessageBot extends TelegramLongPollingBot {
 	}
 
 	public void stopSendingMessages() {
-		if (scheduler != null && !scheduler.isShutdown()) {
+		if (running) {
+			log.info("Stopping the message sending scheduler.");
 			scheduler.shutdown();
+			running = false;
+		} else {
+			log.info("Message sending scheduler is not running.");
 		}
 	}
 

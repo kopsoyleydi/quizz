@@ -37,24 +37,31 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	String token;
 
 	@Autowired
+	public
 	UserSessionHandler userSessionHandler;
 
 	@Autowired
+	public
 	UserScoreHandler userScoreHandler;
 
 	@Autowired
+	public
 	TimerService timerService;
 
 	@Autowired
+	public
 	SessionService sessionService;
 
 	@Autowired
+	public
 	AmountService amountService;
 
 	@Autowired
+	public
 	QuestionService questionService;
 
 	@Autowired
+	public
 	QuestionAndAnswerService questionAndAnswerService;
 
 	@Autowired

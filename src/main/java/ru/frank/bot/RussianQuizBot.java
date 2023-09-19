@@ -81,6 +81,14 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		String userName = message.getFrom().getUserName();
 		Long chatId = message.getChatId();
 
+		if (!userScoreHandler.userAlreadyInChart(userId)) {
+			userScoreHandler.addNewUserInChart(chatId, userName);
+		}
+
+		if(sessionService.checkSession(chatId)){
+			messageBot.startMessageBot(chatId);
+		}
+
 		if(userMessageText!=null){
 
 			if (userMessageText.contains("/help")) {
@@ -92,20 +100,15 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 
 			if(userMessageText.contains("/go")){
-				if (!userScoreHandler.userAlreadyInChart(userId)) {
-					userScoreHandler.addNewUserInChart(chatId, userName);
-				}
 
 				executeSelectMenu(chatId);
 
-				userSessionHandler.createUserSession(chatId);
-
-				timerService.startTimer(chatId);
-
 			}
 			if(userMessageText.contains("/5")){
+				userSessionHandler.createUserSession(chatId);
+				timerService.startTimer(chatId);
 				userSessionHandler.setAmountInit(chatId, 5);
-				messageBot.stopSendingMessages();
+				messageBot.startMessageBot(chatId);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -114,8 +117,11 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 				executeSendTextMessage(chatId, questionService.getQuestion(chatId) + "?");
 			}
 			if(userMessageText.contains("/10")){
+
+				userSessionHandler.createUserSession(chatId);
+				timerService.startTimer(chatId);
 				userSessionHandler.setAmountInit(chatId, 10);
-				messageBot.stopSendingMessages();
+				messageBot.startMessageBot(chatId);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -124,25 +130,21 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 				executeSendTextMessage(chatId, questionService.getQuestion(chatId)  + "?");
 			}
 			if(userMessageText.contains("/15")){
+
+				userSessionHandler.createUserSession(chatId);
+				timerService.startTimer(chatId);
 				userSessionHandler.setAmountInit(chatId, 15);
-				messageBot.stopSendingMessages();
+				messageBot.startMessageBot(chatId);
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-
 				executeSendTextMessage(chatId, questionService.getQuestion(chatId)  + "?");
 			}
 		}
 		if(sessionService.checkSession(chatId)){
-
-			messageBot.stopSendingMessages();
-
 			if (amountService.checkRound(chatId)){
-
-				messageBot.startMessageBot(chatId);
-
 				Long seconds = 0L;
 				try {
 					seconds = timerService.getCurrentSeconds(chatId).get();
@@ -155,7 +157,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					if(seconds >= 0 && seconds <= 15){
 						userScoreHandler.incrementUserScore(userId, 3);
 						userSessionHandler.minusAmountIter(chatId);
-						messageBot.startMessageBot(chatId);
+						messageBot.stopSendingMessages();
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerStarting(chatId);
 					}
@@ -169,13 +171,12 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					else if(seconds >= 41 && seconds <= 59){
 						userScoreHandler.incrementUserScore(userId, 1);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						messageBot.stopSendingMessages();
 						userSessionHandler.minusAmountIter(chatId);
+						messageBot.stopSendingMessages();
 						timerStarting(chatId);
 					}
 				}else if(!userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
 					executeSendTextMessage(chatId, "Неправильный ответ");
-					messageBot.startMessageBot(chatId);
 				}
 			}
 
@@ -192,7 +193,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		else {
 			executeSendTextMessage(chatId, "Игра окончена");
 			userSessionHandler.deleteUserSession(chatId);
-			messageBot.stopSendingMessages();
 			timerService.stopTimer(chatId);
 		}
 	}

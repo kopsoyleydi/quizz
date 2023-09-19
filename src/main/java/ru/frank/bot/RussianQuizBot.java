@@ -137,6 +137,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		}
 		if(sessionService.checkSession(chatId)){
 
+			messageBot.stopSendingMessages();
 
 			if (amountService.checkRound(chatId)){
 

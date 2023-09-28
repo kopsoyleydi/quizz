@@ -10,8 +10,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -20,6 +22,7 @@ import ru.frank.bot.botUtils.UserSessionHandler;
 import ru.frank.service.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -68,6 +71,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	MessageBot messageBot;
 
 	private static String question;
+
 
 	@Override
 	public void onUpdateReceived(Update update) {
@@ -200,7 +204,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		SendMessage sendMessage = new SendMessage();
 		sendMessage.setChatId(chatId);
 		sendMessage.setText("Выбери команду");
-		sendMessage.setReplyMarkup(getMainBotMarkup());
+		sendMessage.setReplyMarkup(getSelectMenu());
 		try {
 			execute(sendMessage);
 		} catch (TelegramApiException e) {
@@ -231,6 +235,19 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		}
 	}
 
+	private InlineKeyboardMarkup inlineKeyboardMarkup(){
+		InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+		List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+		List<InlineKeyboardButton> row = new ArrayList<>();
+		row.add(new InlineKeyboardButton("/5"));
+		row.add(new InlineKeyboardButton("/10"));
+		row.add(new InlineKeyboardButton("/15"));
+		keyboard.add(row);
+		inlineKeyboardMarkup.setKeyboard(keyboard);
+		return inlineKeyboardMarkup;
+	}
+
+	@Deprecated
 	private ReplyKeyboard getMainBotMarkup() {
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список

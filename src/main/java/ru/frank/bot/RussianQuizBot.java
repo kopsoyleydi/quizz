@@ -19,10 +19,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.frank.bot.botUtils.UserScoreHandler;
 import ru.frank.bot.botUtils.UserSessionHandler;
+import ru.frank.model.UserScore;
 import ru.frank.service.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -67,8 +68,9 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	public
 	QuestionAndAnswerService questionAndAnswerService;
 
+
 	@Autowired
-	MessageBot messageBot;
+	UserService userService;
 
 	private static String question;
 
@@ -109,7 +111,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/5")){
 				userSessionHandler.setAmountInit(chatId, 5);
-				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -119,7 +120,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/10")){
 				userSessionHandler.setAmountInit(chatId, 10);
-				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -129,7 +129,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/15")){
 				userSessionHandler.setAmountInit(chatId, 15);
-				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -144,8 +143,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 			if (amountService.checkRound(chatId)){
 
-				messageBot.startMessageBot(chatId);
-
 				Long seconds = 0L;
 				try {
 					seconds = timerService.getCurrentSeconds(chatId).get();
@@ -158,27 +155,23 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					if(seconds >= 0 && seconds <= 15){
 						userScoreHandler.incrementUserScore(userId, 3);
 						userSessionHandler.minusAmountIter(chatId);
-						messageBot.startMessageBot(chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerStarting(chatId);
 					}
 					else if(seconds >= 16 && seconds <= 40){
 						userScoreHandler.incrementUserScore(userId, 2);
 						userSessionHandler.minusAmountIter(chatId);
-						messageBot.stopSendingMessages();
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerStarting(chatId);
 					}
 					else if(seconds >= 41 && seconds <= 59){
 						userScoreHandler.incrementUserScore(userId, 1);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						messageBot.stopSendingMessages();
 						userSessionHandler.minusAmountIter(chatId);
 						timerStarting(chatId);
 					}
 				}else if(!userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
 					executeSendTextMessage(chatId, "Неправильный ответ");
-					messageBot.startMessageBot(chatId);
 				}
 			}
 
@@ -195,7 +188,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		else {
 			executeSendTextMessage(chatId, "Игра окончена");
 			userSessionHandler.deleteUserSession(chatId);
-			messageBot.stopSendingMessages();
+			executeSendTextMessage(chatId, getTopUsersInChat(chatId));
 			timerService.stopTimer(chatId);
 		}
 	}
@@ -247,11 +240,22 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		return inlineKeyboardMarkup;
 	}
 
+	private String getTopUsersInChat(Long chatId){
+		List<UserScore> users = userService.getUsersInChat(chatId);
+
+		String info = "";
+
+        for (UserScore user : users) {
+            info += "1. " + user.getUserName() + " with " + user.getScore() + " scores" + "\n";
+        }
+		return info;
+	}
+
 	@Deprecated
 	private ReplyKeyboard getMainBotMarkup() {
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
-		keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
+		List<KeyboardRow> keyboard = new ArrayList<>();
+		keyboardMarkup.setKeyboard(keyboard);
 		KeyboardRow row1 = new KeyboardRow();
 		KeyboardRow row2 = new KeyboardRow();
 
@@ -269,8 +273,8 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	private ReplyKeyboard getSelectMenu() {
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
-		keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
+		List<KeyboardRow> keyboard = new ArrayList<>();
+		keyboardMarkup.setKeyboard(keyboard);
 		KeyboardRow row1 = new KeyboardRow();
 		KeyboardRow row2 = new KeyboardRow();
 

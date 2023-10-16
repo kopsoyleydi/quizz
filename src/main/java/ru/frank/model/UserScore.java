@@ -8,7 +8,7 @@ public class UserScore {
 
     @Id
     @Column(name = "chat_id")
-    private Long id;
+    private Long chatId;
 
     @Column
     private String userName;
@@ -16,23 +16,12 @@ public class UserScore {
     @Column(name = "score")
     private long score;
 
-
-    public UserScore() {
-
-    }
-
-    public UserScore(Long id, String userName, long score) {
-        this.id = id;
-        this.userName = userName;
-        this.score = score;
-    }
-
     public Long getId() {
-        return id;
+        return chatId;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.chatId = id;
     }
 
     public String getUserName() {
@@ -51,12 +40,12 @@ public class UserScore {
         this.score = score;
     }
 
-    @Override
-    public String toString() {
-        return "UserScore{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", score=" + score +
-                '}';
+    public UserScore(Long id, String userName, long score) {
+        this.chatId = id;
+        this.userName = userName;
+        this.score = score;
+    }
+
+    public UserScore() {
     }
 }

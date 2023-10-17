@@ -64,8 +64,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	public
 	QuestionAndAnswerService questionAndAnswerService;
 
-	@Autowired
-	MessageBot messageBot;
 
 	private static String question;
 
@@ -105,7 +103,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/5")){
 				userSessionHandler.setAmountInit(chatId, 5);
-				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -115,7 +112,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/10")){
 				userSessionHandler.setAmountInit(chatId, 10);
-				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -125,7 +121,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 			if(userMessageText.contains("/15")){
 				userSessionHandler.setAmountInit(chatId, 15);
-				messageBot.stopSendingMessages();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -140,7 +135,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 			if (amountService.checkRound(chatId)){
 
-				messageBot.startMessageBot(chatId);
 
 				Long seconds = 0L;
 				try {
@@ -154,27 +148,23 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					if(seconds >= 0 && seconds <= 15){
 						userScoreHandler.incrementUserScore(userId, 3);
 						userSessionHandler.minusAmountIter(chatId);
-						messageBot.startMessageBot(chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerStarting(chatId);
 					}
 					else if(seconds >= 16 && seconds <= 40){
 						userScoreHandler.incrementUserScore(userId, 2);
 						userSessionHandler.minusAmountIter(chatId);
-						messageBot.stopSendingMessages();
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerStarting(chatId);
 					}
 					else if(seconds >= 41 && seconds <= 59){
 						userScoreHandler.incrementUserScore(userId, 1);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						messageBot.stopSendingMessages();
 						userSessionHandler.minusAmountIter(chatId);
 						timerStarting(chatId);
 					}
 				}else if(!userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
 					executeSendTextMessage(chatId, "Неправильный ответ");
-					messageBot.startMessageBot(chatId);
 				}
 			}
 
@@ -191,7 +181,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		else {
 			executeSendTextMessage(chatId, "Игра окончена");
 			userSessionHandler.deleteUserSession(chatId);
-			messageBot.stopSendingMessages();
 			timerService.stopTimer(chatId);
 		}
 	}

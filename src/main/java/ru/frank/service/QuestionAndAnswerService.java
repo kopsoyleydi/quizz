@@ -32,6 +32,6 @@ public class QuestionAndAnswerService {
 	}
 
 	public void deleteQuestionByChatID(Long chatId){
-		questionsAndAnswerDao.deleteByChatId(chatId);
+		questionsAndAnswerDao.deleteAllByChatId(chatId);
 	}
 }

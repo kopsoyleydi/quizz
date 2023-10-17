@@ -64,6 +64,9 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	public
 	QuestionAndAnswerService questionAndAnswerService;
 
+	@Autowired
+	QuizzMethods quizzMethods;
+
 
 	private static String question;
 
@@ -87,6 +90,12 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 						"по истечению этого времени, ответ не засчитывается. " +
 						"За правильный ответ засчитывается 1 балл. " +
 						"Для просмотра своего счета пришлите /score.");
+			}
+
+			if(userMessageText.contains("/stop")){
+				timerService.stopTimer(chatId);
+
+				executeSendTextMessage(chatId, deleteGameAtTheChat(chatId));
 			}
 
 			if(userMessageText.contains("/go")){
@@ -143,28 +152,28 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 					throw new RuntimeException(e);
 				}
 
-				if(userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
-					timerService.stopTimer(chatId);
-					if(seconds >= 0 && seconds <= 15){
-						userScoreHandler.incrementUserScore(userId, 3, chatId);
-						userSessionHandler.minusAmountIter(chatId);
-						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						timerStarting(chatId);
+				if(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId) != null) {
+					if (userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())) {
+						timerService.stopTimer(chatId);
+						if (seconds >= 0 && seconds <= 15) {
+							userScoreHandler.incrementUserScore(userId, 3, chatId);
+							userSessionHandler.minusAmountIter(chatId);
+							questionAndAnswerService.deleteQuestionByChatID(chatId);
+							timerStarting(chatId);
+						} else if (seconds >= 16 && seconds <= 40) {
+							userScoreHandler.incrementUserScore(userId, 2, chatId);
+							userSessionHandler.minusAmountIter(chatId);
+							questionAndAnswerService.deleteQuestionByChatID(chatId);
+							timerStarting(chatId);
+						} else if (seconds >= 41 && seconds <= 59) {
+							userScoreHandler.incrementUserScore(userId, 1, chatId);
+							questionAndAnswerService.deleteQuestionByChatID(chatId);
+							userSessionHandler.minusAmountIter(chatId);
+							timerStarting(chatId);
+						}
+					} else if (!userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())) {
+						executeSendTextMessage(chatId, "Неправильный ответ");
 					}
-					else if(seconds >= 16 && seconds <= 40){
-						userScoreHandler.incrementUserScore(userId, 2, chatId);
-						userSessionHandler.minusAmountIter(chatId);
-						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						timerStarting(chatId);
-					}
-					else if(seconds >= 41 && seconds <= 59){
-						userScoreHandler.incrementUserScore(userId, 1, chatId);
-						questionAndAnswerService.deleteQuestionByChatID(chatId);
-						userSessionHandler.minusAmountIter(chatId);
-						timerStarting(chatId);
-					}
-				}else if(!userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
-					executeSendTextMessage(chatId, "Неправильный ответ");
 				}
 			}
 
@@ -222,8 +231,8 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	private ReplyKeyboard getMainBotMarkup() {
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
-		keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
+		List<KeyboardRow> keyboard = new ArrayList<>();
+		keyboardMarkup.setKeyboard(keyboard);
 		KeyboardRow row1 = new KeyboardRow();
 		KeyboardRow row2 = new KeyboardRow();
 
@@ -271,6 +280,10 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		} catch (TelegramApiException e) {
 			log.error(ERROR_TEXT + e.getMessage());
 		}
+	}
+
+	private String deleteGameAtTheChat(long chatId){
+		return quizzMethods.deleteGameAtChatID(chatId);
 	}
 
 	@Override

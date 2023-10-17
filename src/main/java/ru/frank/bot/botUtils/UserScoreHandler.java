@@ -27,8 +27,8 @@ public class UserScoreHandler {
 	 * @param userId
 	 * @return true - если пользователь уже есть в таблице, false - если нет.
 	 */
-	public boolean userAlreadyInChart(long userId) {
-		return userScoreDao.findById(userId).isPresent();
+	public boolean userAlreadyInChart(long userId, long chatId) {
+		return userScoreDao.findByChatIdAndUserId(userId, chatId) != null;
 	}
 
 	/**
@@ -36,19 +36,19 @@ public class UserScoreHandler {
 	 *
 	 * @param
 	 */
-	public void addNewUserInChart(long chatId, String userName) {
-		UserScore userScore = new UserScore(chatId, userName, 2);
+	public void addNewUserInChart(long chatId, String userName, long userId) {
+		UserScore userScore = new UserScore(chatId, userName, 2, userId);
 		userScoreDao.save(userScore);
 	}
 
-	public void incrementUserScore(long userId, int score) {
-		UserScore userScore = userScoreDao.findById(userId).get();
+	public void incrementUserScore(long userId, int score, long chatId) {
+		UserScore userScore = userScoreDao.findByChatIdAndUserId(userId, chatId);
 		userScore.setScore(userScore.getScore() + score);
 		userScoreDao.save(userScore);
 	}
 
-	public long getUserScoreById(long userId) {
-		return userScoreDao.findById(userId).get().getScore();
+	public long getUserScoreById(long userId, long chatId) {
+		return userScoreDao.findByChatIdAndUserId(userId, chatId).getScore();
 	}
 
 	/**

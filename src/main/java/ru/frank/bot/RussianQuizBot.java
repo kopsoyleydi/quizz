@@ -90,8 +90,8 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 			}
 
 			if(userMessageText.contains("/go")){
-				if (!userScoreHandler.userAlreadyInChart(userId)) {
-					userScoreHandler.addNewUserInChart(chatId, userName);
+				if (!userScoreHandler.userAlreadyInChart(userId, chatId)) {
+					userScoreHandler.addNewUserInChart(chatId, userName, userId);
 				}
 
 				executeSelectMenu(chatId);
@@ -146,19 +146,19 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 				if(userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())){
 					timerService.stopTimer(chatId);
 					if(seconds >= 0 && seconds <= 15){
-						userScoreHandler.incrementUserScore(userId, 3);
+						userScoreHandler.incrementUserScore(userId, 3, chatId);
 						userSessionHandler.minusAmountIter(chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerStarting(chatId);
 					}
 					else if(seconds >= 16 && seconds <= 40){
-						userScoreHandler.incrementUserScore(userId, 2);
+						userScoreHandler.incrementUserScore(userId, 2, chatId);
 						userSessionHandler.minusAmountIter(chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						timerStarting(chatId);
 					}
 					else if(seconds >= 41 && seconds <= 59){
-						userScoreHandler.incrementUserScore(userId, 1);
+						userScoreHandler.incrementUserScore(userId, 1, chatId);
 						questionAndAnswerService.deleteQuestionByChatID(chatId);
 						userSessionHandler.minusAmountIter(chatId);
 						timerStarting(chatId);

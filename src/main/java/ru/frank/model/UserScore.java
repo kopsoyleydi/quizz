@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 public class UserScore {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "chat_id")
     private Long chatId;
 
@@ -16,12 +19,19 @@ public class UserScore {
     @Column(name = "score")
     private long score;
 
+    @Column(name = "user_id")
+    private Long userId;
+
+    public UserScore() {
+
+    }
+
     public Long getId() {
-        return chatId;
+        return id;
     }
 
     public void setId(Long id) {
-        this.chatId = id;
+        this.id = id;
     }
 
     public String getUserName() {
@@ -36,16 +46,30 @@ public class UserScore {
         return score;
     }
 
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public void setScore(long score) {
         this.score = score;
     }
 
-    public UserScore(Long id, String userName, long score) {
-        this.chatId = id;
+    public UserScore(Long chatId, String userName, long score, Long userId) {
+        this.chatId = chatId;
         this.userName = userName;
         this.score = score;
-    }
-
-    public UserScore() {
+        this.userId = userId;
     }
 }

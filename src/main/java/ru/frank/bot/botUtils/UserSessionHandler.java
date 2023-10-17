@@ -56,13 +56,6 @@ public class UserSessionHandler {
         userSessionDao.save(userSession);
     }
 
-    /**
-     * По истечению времени, текущая сессия должна быть удалена и пользователю отправляется сообщение об истечении
-     * времени.
-     * @param currentDate - время получения сообщения с ответом на вопрос от пользователя.
-     * @param userId - id пользователя.
-     * @return true/false.
-     */
     public boolean validateDate(LocalDateTime currentDate, long userId) {
         LocalDateTime dateTimeFromSession = LocalDateTime.parse(getDateFromSession(userId), formatter);
         return currentDate.isBefore(dateTimeFromSession.plusSeconds(61));

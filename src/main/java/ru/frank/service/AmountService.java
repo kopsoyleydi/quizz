@@ -9,7 +9,6 @@ public class AmountService {
 	@Autowired
 	private UserSessionDao userSessionDao;
 
-
 	public boolean checkRound(Long chatId){
 		int amount = userSessionDao.getUserSessionById(chatId).getAmountInit();
 		return amount > 1;

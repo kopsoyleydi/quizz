@@ -37,13 +37,4 @@ public class QuestionAnswerGenerator {
 		return questions;
 	}
 
-	/**
-	 * Метод получает случайный объект класса QuestionAndAnswer с помощью
-	 * метода getRandomQuestionAndAnswer() и формирует из полей объекта QuestionAndAnswer
-	 * строку содержащую вопрос и ответ разделенные символом '|'.
-	 * Например: "В каком году началась Первая мировая война?|1914"
-	 *
-	 * @return String вопрос и ответ разделенные символом '|'.
-	 */
-
 }

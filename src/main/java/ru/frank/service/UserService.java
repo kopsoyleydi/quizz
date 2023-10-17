@@ -1,6 +1,5 @@
 package ru.frank.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.frank.dataBaseUtil.userScore.UserScoreDao;
@@ -14,7 +13,7 @@ public class UserService {
     @Autowired
     private UserScoreDao userScoreDao;
 
-    public List<UserScore> getUsersInChat(Long chatId){
+    public List<UserScore> getTopUsersInChat(Long chatId){
         return userScoreDao.findAllUserInCurrentChat(chatId);
     }
 }

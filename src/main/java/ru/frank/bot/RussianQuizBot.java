@@ -17,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.frank.bot.botUtils.UserScoreHandler;
 import ru.frank.bot.botUtils.UserSessionHandler;
+import ru.frank.model.UserScore;
 import ru.frank.service.*;
 
 import java.util.ArrayList;
@@ -66,6 +67,9 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	@Autowired
 	QuizzMethods quizzMethods;
+
+	@Autowired
+	UserService userService;
 
 
 	private static String question;
@@ -190,6 +194,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		else {
 			executeSendTextMessage(chatId, "Игра окончена");
 			userSessionHandler.deleteUserSession(chatId);
+			executeSendTextMessage(chatId, sendTopThreeUsersScoreInChat(chatId));
 			timerService.stopTimer(chatId);
 		}
 	}
@@ -274,6 +279,14 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		executeMessage(message);
 	}
 
+	private String sendTopThreeUsersScoreInChat(long chatId){
+		List<UserScore> topList = userService.getTopUsersInChat(chatId);
+		String top = "";
+		for(int i = 0;i< topList.size();i++){
+			top += i++ + " " + "Участник " + topList.get(i).getUserName() + " с " + topList.get(i).getScore() + "\n";
+		}
+		return top;
+	}
 	private void executeMessage(SendMessage message) {
 		try {
 			execute(message);

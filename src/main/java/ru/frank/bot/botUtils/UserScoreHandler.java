@@ -4,11 +4,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.frank.dataBaseUtil.userScore.UserScoreDao;
-import ru.frank.exceptions.UserScoreListIsEmptyException;
+
 import ru.frank.model.UserScore;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Класс для обработки событий связанных с чтением, изменением, дополнением
@@ -51,34 +49,6 @@ public class UserScoreHandler {
 		return userScoreDao.findByChatIdAndUserId(userId, chatId).getScore();
 	}
 
-	/**
-	 * ArrayList include top 5 or less UserSco
-	 *
-	 * @return
-	 */
-	public List<UserScore> getTopFiveUserScore() {
-		List<UserScore> allUserScore = userScoreDao.findAll();
 
-		if (allUserScore.isEmpty()) {
-			throw new UserScoreListIsEmptyException("User score list is empty.");
-		}
-
-		List<UserScore> sortedList = allUserScore.stream()
-				.sorted()
-				.toList();
-
-		int userScoreListSize = sortedList.size();
-
-		List<UserScore> topScoreList;
-
-		if (userScoreListSize < 5) {
-			topScoreList = new ArrayList<>(allUserScore.subList(0, userScoreListSize));
-		} else {
-			topScoreList = new ArrayList<>(allUserScore.subList(0, 5));
-		}
-
-		return topScoreList;
-
-	}
 
 }

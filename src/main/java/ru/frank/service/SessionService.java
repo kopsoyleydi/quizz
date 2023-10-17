@@ -19,6 +19,7 @@ public class SessionService {
 		return false;
 	}
 
+	@Deprecated
 	public void plusAmount(Long chatId, int amount){
 		UserSession userSession = userSessionDao.getUserSessionById(chatId);
 		userSession.setAmountInit(amount);

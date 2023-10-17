@@ -21,6 +21,7 @@ public class QuizzMethods {
 	@Autowired
 	private UserScoreDao userScoreDao;
 
+	@Deprecated
 	public boolean  checkAnswer(String answer, Long chatId){
 		QuestionAndAnswer questionAndAnswer = questionsAndAnswerDao.findByChatId(chatId);
 		return Objects.equals(questionAndAnswer.getAnswer(), answer);

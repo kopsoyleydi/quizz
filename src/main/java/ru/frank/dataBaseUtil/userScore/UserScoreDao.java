@@ -17,7 +17,7 @@ import java.util.List;
 public interface UserScoreDao extends JpaRepository<UserScore, Long> {
 	UserScore findByChatId(Long id);
 
-	@Query("SELECT s from UserScore s where s.chatId = :id order by s.score desc")
+	@Query("SELECT s from UserScore s where s.chatId = :id order by s.score desc LIMIT 3")
 	List<UserScore> findAllUserInCurrentChat(Long id);
 
 	@Query("select s from UserScore s where s.chatId = :chatId and s.userId = :userId")

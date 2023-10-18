@@ -72,8 +72,6 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	UserService userService;
 
 
-	private static String question;
-
 	@Override
 	public void onUpdateReceived(Update update) {
 
@@ -193,9 +191,9 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 		}
 		else {
 			executeSendTextMessage(chatId, "Игра окончена");
-			userSessionHandler.deleteUserSession(chatId);
-			executeSendTextMessage(chatId, sendTopThreeUsersScoreInChat(chatId));
 			timerService.stopTimer(chatId);
+			executeSendTextMessage(chatId, sendTopThreeUsersScoreInChat(chatId));
+			deleteGameAtTheChat(chatId);
 		}
 	}
 
@@ -255,8 +253,8 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 
 	private ReplyKeyboard getSelectMenu() {
 		ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-		List<KeyboardRow> keyboard = new ArrayList<>(); // Инициализируйте список
-		keyboardMarkup.setKeyboard(keyboard); // Установите список в клавиатуре
+		List<KeyboardRow> keyboard = new ArrayList<>();
+		keyboardMarkup.setKeyboard(keyboard);
 		KeyboardRow row1 = new KeyboardRow();
 		KeyboardRow row2 = new KeyboardRow();
 
@@ -280,12 +278,13 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 	}
 
 	private String sendTopThreeUsersScoreInChat(long chatId){
-		List<UserScore> topList = userService.getTopUsersInChat(chatId);
-		String top = "";
+		List<UserScore> topList = new ArrayList<>(userService.getTopUsersInChat(chatId));
+		StringBuilder top = new StringBuilder();
+		int numberMembers = 1;
 		for(int i = 0;i< topList.size();i++){
-			top += i++ + " " + "Участник " + topList.get(i).getUserName() + " с " + topList.get(i).getScore() + "\n";
+			top.append(numberMembers++).append(" ").append("Участник ").append(topList.get(i).getUserName()).append(" с ").append(topList.get(i).getScore()).append("\n");
 		}
-		return top;
+		return top.toString();
 	}
 	private void executeMessage(SendMessage message) {
 		try {

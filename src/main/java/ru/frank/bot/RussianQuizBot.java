@@ -155,7 +155,7 @@ public class RussianQuizBot extends TelegramLongPollingBot {
 				}
 
 				if(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId) != null) {
-					if (userMessageText.contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer())) {
+					if (userMessageText.toLowerCase().contains(questionAndAnswerService.getQuestionAndAnswerByChatId(chatId).getAnswer().toLowerCase())) {
 						timerService.stopTimer(chatId);
 						if (seconds >= 0 && seconds <= 15) {
 							userScoreHandler.incrementUserScore(userId, 3, chatId);
